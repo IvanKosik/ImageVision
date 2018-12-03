@@ -1,4 +1,4 @@
-from image import Image
+from core.image import Image
 from PyQt5.QtCore import QObject, pyqtSignal
 import numpy as np
 

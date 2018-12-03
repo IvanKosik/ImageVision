@@ -1,5 +1,5 @@
 from plugins.image_viewer.tools.image_viewer_tool import ImageViewerTool
-import settings
+from core import settings
 
 import keras
 import tensorflow as tf

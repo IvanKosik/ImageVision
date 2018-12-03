@@ -1,4 +1,4 @@
-from plugin import Plugin
+from core.plugin import Plugin
 from plugins.main_window.main_window import MainWindow
 
 

@@ -1,5 +1,5 @@
 from plugins.image_viewer.tools.image_viewer_tool import ImageViewerTool
-import settings
+from core import settings
 
 from PyQt5.QtCore import Qt, QEvent
 from skimage.draw import line, rectangle, polygon_perimeter

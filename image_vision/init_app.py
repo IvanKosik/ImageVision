@@ -1,4 +1,4 @@
-from plugin_manager import PluginManager
+from core.plugin_manager import PluginManager
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
@@ -34,4 +34,4 @@ smart_brush_plugin.activate_tool()
 # crop_plugin.activate_tool()
 #grab_cut_plugin.activate_tool()
 
-image_viewer_plugin.image_viewer.drop_file('test_data/test_image.png')
+image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')

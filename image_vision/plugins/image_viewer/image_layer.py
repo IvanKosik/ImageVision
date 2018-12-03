@@ -1,4 +1,4 @@
-from image import Image
+from core.image import Image
 
 
 class ImageLayer:

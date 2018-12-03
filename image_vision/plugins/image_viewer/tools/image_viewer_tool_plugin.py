@@ -1,4 +1,4 @@
-from plugin import Plugin
+from core.plugin import Plugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 

@@ -1,7 +1,7 @@
 from plugins.image_viewer.image_layer import ImageLayer
-from image import Image
-import image_utils
-import settings
+from core.image import Image
+from core import image_utils
+from core import settings
 
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap, QPainter
@@ -38,7 +38,7 @@ class ImageViewer(QLabel):
         self.setAcceptDrops(True)
 
         # self.view_mode = ViewMode.FILE
-        self.image_path = 'test_data/test_image.png'
+        self.image_path = '' #tests/start_image.png'
         self.mask_path = ''
         self.view_path = ''
         self.images_path = ''
