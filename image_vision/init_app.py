@@ -1,5 +1,6 @@
 from core.plugin_manager import PluginManager
 from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.dicom_loader.dicom_loader_plugin import DicomLoaderPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
 from plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool_plugin import PolygonSegmentationToolPlugin
@@ -23,7 +24,7 @@ grab_cut_plugin = GrabCutSegmentationToolPlugin()
 exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, polygon_segmentation_tool_plugin]
 exclusive_tool_manager_plugin = ImageViewersExclusiveToolManagerPlugin(exclusive_tool_plugins)
 
-plugins = [MainWindowPlugin(), image_viewer_plugin] + exclusive_tool_plugins + [exclusive_tool_manager_plugin, AnnPredictionToolPlugin()] #exclusive_tool_plugins  #polygon_segmentation_tool_plugin]#smart_brush_plugin]#, polygon_segmentation]
+plugins = [MainWindowPlugin(), image_viewer_plugin, DicomLoaderPlugin()] + exclusive_tool_plugins + [exclusive_tool_manager_plugin, AnnPredictionToolPlugin()] #exclusive_tool_plugins  #polygon_segmentation_tool_plugin]#smart_brush_plugin]#, polygon_segmentation]
 
 plugin_manager = PluginManager()
 for plugin in plugins:
