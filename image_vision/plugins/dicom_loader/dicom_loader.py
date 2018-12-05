@@ -9,14 +9,21 @@ from pathlib import Path
 
 
 class DicomRecord:
-    def __init__(self, dataset=None):
-        self.children = {}  # { id: DicomRecord }
+    def __init__(self, record_id, dataset=None):
+        self.id = record_id
         self.dataset = dataset
+        self.children = {}  # { id: DicomRecord }
+
+    def __str__(self, level=0):
+        s = '\t' * level + repr(self.id) + '\n'
+        for child_record in self.children.values():
+            s += child_record.__str__(level + 1)
+        return s
 
 
 class DicomDir(DicomRecord):
     def __init__(self, path):
-        super().__init__()
+        super().__init__(path)
 
         self.path = path
 
@@ -28,9 +35,8 @@ class DicomLoader:
     def load_dicom(self):
         print('load_dicom')
 
-
-        # data = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
-        data = Path('d:/Projects/BodySnitches/Builds/BodySnitches/DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
+        data = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
+        # data = Path('d:/Projects/BodySnitches/Builds/BodySnitches/DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
         # file_paths = list(data.glob('**/*'))
         file_paths = [file_path for file_path in data.glob('**/*') if file_path.is_file()]
 
@@ -45,14 +51,20 @@ class DicomLoader:
                 # print('pid', file_dataset.PatientID, 'studyId', file_dataset.StudyID, 'seriesNum', file_dataset.SeriesNumber)
 
                 if file_dataset.PatientID not in dicom_dir.children:
-                    dicom_dir.children[file_dataset.PatientID] = DicomRecord()
-
+                    dicom_dir.children[file_dataset.PatientID] = DicomRecord(file_dataset.PatientID)
                 patient_record = dicom_dir.children[file_dataset.PatientID]
-                if file_dataset.StudyID not in patient_record.children:
-                    patient_record.children[file_dataset.StudyID] = DicomRecord()
 
+                if file_dataset.StudyID not in patient_record.children:
+                    patient_record.children[file_dataset.StudyID] = DicomRecord(file_dataset.StudyID)
                 study_record = patient_record.children[file_dataset.StudyID]
-                study_record[file_path.name] = DicomRecord(file_dataset)
+
+                if file_dataset.SeriesNumber not in study_record.children:
+                    study_record.children[file_dataset.SeriesNumber] = DicomRecord(file_dataset.SeriesNumber)
+                series_record = study_record.children[file_dataset.SeriesNumber]
+
+                series_record.children[file_path.name] = DicomRecord(file_path.name, file_dataset)
+
+                # study_record[file_path.name] = DicomRecord(file_dataset)
                 # study_record[]
 
                 # patient_record = dicom_dir.children[file_dataset.PatientID]
@@ -70,6 +82,7 @@ class DicomLoader:
                 print('loading exception:', type(exception),
                       exception)
 
+        print('dicom_dir')
         print(dicom_dir)
 
         return
