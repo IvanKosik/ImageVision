@@ -1,6 +1,7 @@
 import pydicom
 from pydicom.filereader import read_dicomdir, read_dataset
 from pydicom.data import get_testdata_files
+from pydicom.errors import InvalidDicomError
 from os.path import dirname, join
 from pprint import pprint
 import matplotlib.pyplot as plt
@@ -35,72 +36,41 @@ class DicomLoader:
     def load_dicom(self):
         print('load_dicom')
 
-        data = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
+        dicom_path = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
         # data = Path('d:/Projects/BodySnitches/Builds/BodySnitches/DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
-        # file_paths = list(data.glob('**/*'))
-        file_paths = [file_path for file_path in data.glob('**/*') if file_path.is_file()]
+        dicom_dir = DicomDir(dicom_path)
 
-        print(len(file_paths))
-
-        dicom_dir = DicomDir(data)
-
+        file_paths = [file_path for file_path in dicom_path.glob('**/*') if file_path.is_file()]
         for file_path in file_paths:
             try:
                 file_dataset = pydicom.dcmread(str(file_path))
-                # print('file_dataset', file_dataset)
-                # print('pid', file_dataset.PatientID, 'studyId', file_dataset.StudyID, 'seriesNum', file_dataset.SeriesNumber)
+            except InvalidDicomError as exception:
+                print('DICOM file loading exception:', exception, '\n\tFile:', file_path)
+                continue
 
-                if file_dataset.PatientID not in dicom_dir.children:
-                    dicom_dir.children[file_dataset.PatientID] = DicomRecord(file_dataset.PatientID)
-                patient_record = dicom_dir.children[file_dataset.PatientID]
+            # print('file_dataset', file_dataset)
 
-                if file_dataset.StudyID not in patient_record.children:
-                    patient_record.children[file_dataset.StudyID] = DicomRecord(file_dataset.StudyID)
-                study_record = patient_record.children[file_dataset.StudyID]
+            if file_dataset.PatientID not in dicom_dir.children:
+                dicom_dir.children[file_dataset.PatientID] = DicomRecord(file_dataset.PatientID)
+            patient_record = dicom_dir.children[file_dataset.PatientID]
 
-                if file_dataset.SeriesNumber not in study_record.children:
-                    study_record.children[file_dataset.SeriesNumber] = DicomRecord(file_dataset.SeriesNumber)
-                series_record = study_record.children[file_dataset.SeriesNumber]
+            if file_dataset.StudyID not in patient_record.children:
+                patient_record.children[file_dataset.StudyID] = DicomRecord(file_dataset.StudyID)
+            study_record = patient_record.children[file_dataset.StudyID]
 
-                series_record.children[file_path.name] = DicomRecord(file_path.name, file_dataset)
+            if file_dataset.SeriesNumber not in study_record.children:
+                study_record.children[file_dataset.SeriesNumber] = DicomRecord(file_dataset.SeriesNumber)
+            series_record = study_record.children[file_dataset.SeriesNumber]
 
-                # study_record[file_path.name] = DicomRecord(file_dataset)
-                # study_record[]
+            series_record.children[file_path.name] = DicomRecord(file_path.name, file_dataset)
 
-                # patient_record = dicom_dir.children[file_dataset.PatientID]
-                                            
-                        
-                #     else:
-                #     
-                # else:
-                    
-                # print(dicom_dir.children[file_dataset.PatientID])
+        print('dicom_dir\n', dicom_dir)
 
-                # return
-            except Exception as exception:
-                print(file_path)
-                print('loading exception:', type(exception),
-                      exception)
+        return dicom_dir
 
-        print('dicom_dir')
-        print(dicom_dir)
-
-        return
-
-        test_dict = {'a': 10, 'b': 20}
-        for v in test_dict:
-            print('vvv:', v)
-
-        # ddd = pydicom.dcmread('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM/11111611/53120000/88851906')
-        # print('ddd.type', type(ddd))
-        # print('shape', ddd.pixel_array.shape)
-        # print('READ', ddd)
-        # plt.imshow(ddd.pixel_array, cmap=plt.cm.bone)
+    def load_dicom_dir_file(self):
+        # plt.imshow(dcm_dataset.pixel_array, cmap=plt.cm.bone)
         # plt.show()
-
-        a = Dataset()
-        a.children = []
-        print('datasettt', a.children)
 
         # fetch the path to the test data
         # filepath = get_testdata_files('DICOMDIR')[0]
