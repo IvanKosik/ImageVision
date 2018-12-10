@@ -7,26 +7,7 @@ from pprint import pprint
 import matplotlib.pyplot as plt
 from pydicom.dataset import Dataset
 from pathlib import Path
-
-
-class DicomRecord:
-    def __init__(self, record_id, dataset=None):
-        self.id = record_id
-        self.dataset = dataset
-        self.children = {}  # { id: DicomRecord }
-
-    def __str__(self, level=0):
-        s = '\t' * level + repr(self.id) + '\n'
-        for child_record in self.children.values():
-            s += child_record.__str__(level + 1)
-        return s
-
-
-class DicomDir(DicomRecord):
-    def __init__(self, path):
-        super().__init__(path)
-
-        self.path = path
+from plugins.dicom_loader.dicom_record import DicomDir, DicomPatient, DicomStudy, DicomSeries, DicomImage
 
 
 class DicomLoader:
@@ -51,18 +32,18 @@ class DicomLoader:
             # print('file_dataset', file_dataset)
 
             if file_dataset.PatientID not in dicom_dir.children:
-                dicom_dir.children[file_dataset.PatientID] = DicomRecord(file_dataset.PatientID)
+                dicom_dir.children[file_dataset.PatientID] = DicomPatient(file_dataset.PatientID)
             patient_record = dicom_dir.children[file_dataset.PatientID]
 
             if file_dataset.StudyID not in patient_record.children:
-                patient_record.children[file_dataset.StudyID] = DicomRecord(file_dataset.StudyID)
+                patient_record.children[file_dataset.StudyID] = DicomStudy(file_dataset.StudyID)
             study_record = patient_record.children[file_dataset.StudyID]
 
             if file_dataset.SeriesNumber not in study_record.children:
-                study_record.children[file_dataset.SeriesNumber] = DicomRecord(file_dataset.SeriesNumber)
+                study_record.children[file_dataset.SeriesNumber] = DicomSeries(file_dataset.SeriesNumber)
             series_record = study_record.children[file_dataset.SeriesNumber]
 
-            series_record.children[file_path.name] = DicomRecord(file_path.name, file_dataset)
+            series_record.children[file_path.name] = DicomImage(file_path.name, file_dataset)
 
         print('dicom_dir\n', dicom_dir)
 
