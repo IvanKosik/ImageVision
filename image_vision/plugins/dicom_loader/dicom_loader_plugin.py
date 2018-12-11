@@ -4,6 +4,9 @@ from plugins.dicom_loader.dicom_preview import DicomPreview
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog
+
+from pathlib import Path
 
 
 class DicomLoaderPlugin(Plugin):
@@ -31,6 +34,9 @@ class DicomLoaderPlugin(Plugin):
             'Load DICOM', self.load_dicom, Qt.CTRL + Qt.Key_D)
 
     def load_dicom(self):
-        dicom_dir = self.dicom_loader.load_dicom()
+        dicom_path = Path(QFileDialog.getExistingDirectory(caption=self.tr('Select DICOM Directory')))
+        # dicom_path = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
+        dicom_dir = self.dicom_loader.load_dicom(dicom_path)
         self.dicom_preview = DicomPreview(dicom_dir)
+        self.dicom_preview.setGeometry(100, 100, 1200, 800)
         self.dicom_preview.show()

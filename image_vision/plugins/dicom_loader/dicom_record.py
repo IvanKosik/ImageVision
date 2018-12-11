@@ -17,7 +17,7 @@ class DicomRecord:
         self.children = {}  # { id: DicomRecord }
 
     def __str__(self, level=0):
-        s = '\t' * level + repr(self.id) + '\n'
+        s = '\t' * level + repr(self.id) + '\t' + repr(self) + '\n'
         for child_record in self.children.values():
             s += child_record.__str__(level + 1)
         return s

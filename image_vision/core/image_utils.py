@@ -1,6 +1,7 @@
 from PyQt5.QtGui import QImage
 import numpy as np
 from skimage.color import gray2rgb
+from skimage.transform import rescale
 
 
 def converted_to_normalized_uint8(image):
@@ -54,6 +55,20 @@ def numpy_rgba_image_to_qimage(numpy_image):
 
 def numpy_bgra_image_to_qimage(numpy_image):
     return numpy_rgba_image_to_qimage(numpy_image).rgbSwapped()
+
+
+def numpy_gray_image_to_qimage(numpy_image):
+    height, width = numpy_image.shape
+    bytes_per_line = numpy_image.strides[0]
+    return QImage(numpy_image.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+
+
+# Returns resized image keeping aspect ratio
+def resized_image(image, max_size):
+    bigger_side = max(image.shape[0], image.shape[1])
+    scale_factor = max_size / bigger_side
+    # mode='constant' is used just to hide warning in scikit-image 0.14.1
+    return rescale(image, scale_factor, mode='constant', multichannel=False, anti_aliasing=True)
 
 
 def print_image_info(image, prefix=''):

@@ -14,11 +14,7 @@ class DicomLoader:
     def __init__(self):
         pass
 
-    def load_dicom(self):
-        print('load_dicom')
-
-        dicom_path = Path('D:/Projects/C++/Qt/5/BodySnitches/Builds/BodySnitches/!DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
-        # data = Path('d:/Projects/BodySnitches/Builds/BodySnitches/DicomDatasets/FantasticNine/09-Kydryavcev/2011.12.09/DICOM')
+    def load_dicom(self, dicom_path: Path):
         dicom_dir = DicomDir(dicom_path)
 
         file_paths = [file_path for file_path in dicom_path.glob('**/*') if file_path.is_file()]
@@ -45,7 +41,7 @@ class DicomLoader:
 
             series_record.children[file_path.name] = DicomImage(file_path.name, file_dataset)
 
-        print('dicom_dir\n', dicom_dir)
+        # print(dicom_dir)
 
         return dicom_dir
 
