@@ -48,6 +48,9 @@ def numpy_bgr_image_to_qimage(numpy_image):
 
 
 def numpy_rgba_image_to_qimage(numpy_image):
+    # print("STRIDES", numpy_image.strides[0])
+    # print(numpy_image.flags['C_CONTIGUOUS'])
+
     height, width, channel = numpy_image.shape
     bytes_per_line = 4 * width
     return QImage(numpy_image.data, width, height, bytes_per_line, QImage.Format_RGBA8888_Premultiplied)

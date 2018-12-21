@@ -1,5 +1,6 @@
 from core.plugin import Plugin
 from plugins.image_viewer.image_viewer import ImageViewer
+from plugins.image_viewer.model_image_viewer import ModelImageViewer
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
@@ -17,7 +18,7 @@ class ImageViewerPlugin(Plugin):
         super().install_core(plugin_manager)
 
         main_window = plugin_manager.plugin(MainWindowPlugin.name()).main_window
-        self.image_viewer = ImageViewer(main_window)
+        self.image_viewer = ModelImageViewer(main_window)
 
     def install_gui(self, plugin_manager):
         super().install_gui(plugin_manager)

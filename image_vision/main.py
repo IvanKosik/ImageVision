@@ -4,6 +4,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 # import nibabel as nib
 # from nibabel.testing import data_path
 
+# import logging
+import traceback
+
+
 '''
 def load_nii():
     print('load_nii')
@@ -44,6 +48,8 @@ def init_app():
 
 
 if __name__ == '__main__':
+    # logging.basicConfig(level='INFO')
+
     app = QApplication(sys.argv)
 
     init_app()
