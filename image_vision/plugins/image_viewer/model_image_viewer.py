@@ -11,6 +11,9 @@ import nibabel as nib
 import numpy as np
 import os
 
+from skimage.morphology import disk
+from skimage.filters import rank
+
 
 class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
     def __init__(self, main_window, parent=None):
@@ -66,6 +69,9 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
 
         image_utils.print_image_info(self.image().data, 'original')
         self.image().data = image_utils.converted_to_normalized_uint8(self.image().data)
+
+        self.image().data = rank.equalize(self.image().data, selem=disk(60))
+
         self.image().data = image_utils.converted_to_rgba(self.image().data)
         image_utils.print_image_info(self.image().data, 'converted')
 

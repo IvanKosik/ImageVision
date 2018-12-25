@@ -96,14 +96,16 @@ class SmartBrushSegmentationTool(ImageViewerTool):
             return
 
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        ret, label, center = cv2.kmeans(samples, number_of_clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+        ret, label, centers = cv2.kmeans(samples, number_of_clusters, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
         label = label.ravel()  # 2D array (one column) to 1D array without copy
+        centers = centers.ravel()
 
         center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]
         if center_pixel_indexes.size != 1:  # there are situations, when the center pixel is out of image
             return
         center_pixel_index = center_pixel_indexes[0]
-        center_pixel_label = label[center_pixel_index]
+        #center_pixel_label = label[center_pixel_index]
+        center_pixel_label = 0 if centers[0] > centers[1] else 1
 
         if self.mode == Mode.ERASE:
             self.tool_mask.data[rr, cc] = [255, 0, 0, 255]
