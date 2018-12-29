@@ -54,7 +54,7 @@ class AnnPredictionTool(ImageViewerTool):
             #                                                      'dice_coef_with_sigmoid': dice_coef_with_sigmoid
             #                                                      }
             #                                 )  # DO it only ONE time
-            self.model = keras.models.load_model('D:/Projects/BsAnn/Models/2018.11.26.Model_Loss025.h5', #2018.11.14.Model_594EditedSlices3_loss027.h5',
+            self.model = keras.models.load_model('D:/Projects/Temp/ImReg/Dicoms/ConvertedMriConvert/BrainData/BrainModels/BrainModel_Loss017_NoOptimizer.h5', #D:/Projects/BsAnn/Models/2018.11.26.Model_Loss025.h5', #2018.11.14.Model_594EditedSlices3_loss027.h5',
                                                  custom_objects={'bce_dice_loss': bce_dice_loss,
                                                                  'dice_coef_with_sigmoid': dice_coef_with_sigmoid
                                                                  }
