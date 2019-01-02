@@ -67,22 +67,17 @@ def numpy_gray_image_to_qimage(numpy_image):
 
 
 # Returns resized image keeping aspect ratio
-def resized_image(image, max_size):
+def resized_image(image, max_size, multichannel=False, anti_aliasing=True):
     bigger_side = max(image.shape[0], image.shape[1])
     scale_factor = max_size / bigger_side
     # mode='constant' is used just to hide warning in scikit-image 0.14.1
-    return rescale(image, scale_factor, mode='constant', multichannel=False, anti_aliasing=True)
+    return rescale(image, scale_factor, mode='constant', multichannel=multichannel, anti_aliasing=anti_aliasing)
 
 
 # Returns resized image keeping aspect ration and padded to rectangular
-def resized_rect_image(image, max_size):
-    pass
-    '''
-    row_pad = max(image.shape[1] - image.shape[0], 0)
-    col_pad = max(image.shape[0] - image.shape[1], 0)
-    image = np.pad(image, ((0, row_pad), (0, col_pad)), 'constant')
-    image = cv2.resize(image, (512, 512), cv2.INTER_LANCZOS4)
-    '''
+def resized_padded_to_rect_image(image, max_size, multichannel=False, anti_aliasing=True):
+    resized = resized_image(image, max_size, multichannel, anti_aliasing)
+    return np.pad(image, ((0, max_size - resized.shape[0]), (0, max_size - resized.shape[1])), 'constant')
 
 
 def print_image_info(image, prefix=''):
