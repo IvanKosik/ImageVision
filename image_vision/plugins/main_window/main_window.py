@@ -7,4 +7,4 @@ class MainWindow(QMainWindow):
 
         self.resize(800, 600)
         self.move(300, 300)
-        self.setWindowTitle('Data Editor')
+        self.setWindowTitle('Image Vision')
