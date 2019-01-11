@@ -8,6 +8,7 @@ from plugins.image_viewer.tools.crop.crop_tool_plugin import CropToolPlugin
 from plugins.image_viewer.tools.grab_cut_segmentation.grab_cut_segmentation_tool_plugin import GrabCutSegmentationToolPlugin
 from plugins.image_viewer.exclusive_tool_manager.image_viewers_exclusive_tool_manager_plugin import ImageViewersExclusiveToolManagerPlugin
 from plugins.image_viewer.tools.ann_prediction.ann_prediction_tool_plugin import AnnPredictionToolPlugin
+from plugins.image_viewer.tools.thresholding.thresholding_tool_plugin import ThresholdingToolPlugin
 from plugins.ann_tester.ann_tester_plugin import AnnTesterPlugin
 
 
@@ -21,7 +22,7 @@ grab_cut_plugin = GrabCutSegmentationToolPlugin()
 # smart_brush_plugin = ImageViewerToolPlugin(SmartBrushSegmentationTool, 'Smart Brush')
 # polygon_segmentation = ImageViewerToolPlugin(PolygonSegmentationTool, 'Polygon')
 
-exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, polygon_segmentation_tool_plugin]
+exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, polygon_segmentation_tool_plugin, ThresholdingToolPlugin()]
 exclusive_tool_manager_plugin = ImageViewersExclusiveToolManagerPlugin(exclusive_tool_plugins)
 
 plugins = [MainWindowPlugin(), image_viewer_plugin, DicomLoaderPlugin()] + exclusive_tool_plugins + [exclusive_tool_manager_plugin, AnnPredictionToolPlugin()] #exclusive_tool_plugins  #polygon_segmentation_tool_plugin]#smart_brush_plugin]#, polygon_segmentation]

@@ -2,6 +2,7 @@ from plugins.image_viewer.tools.image_viewer_tool import ImageViewerTool
 from core import settings
 
 from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtWidgets import QWidget, QSlider, QFormLayout
 from skimage.draw import line, rectangle, polygon_perimeter
 import numpy as np
 import cv2

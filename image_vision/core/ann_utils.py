@@ -21,7 +21,7 @@ def predict_on_nifti_model_slices(nifti_model_path: Path, keras_model_path: Path
         predicted_slice = predict_on_image(keras_model, cur_slice)
         predicted_model[:, :, slice_number] = predicted_slice * 255
 
-    predicted_nifti_model = nib.Nifti2Image(predicted_model, affine=nifti_model.affine, header=nifti_model.header)
+    predicted_nifti_model = nib.Nifti1Image(predicted_model, affine=nifti_model.affine, header=nifti_model.header)
     predicted_nifti_model.to_filename(str(nifti_predicted_model_path))
 
 

@@ -70,7 +70,7 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         image_utils.print_image_info(self.image().data, 'original')
         self.image().data = image_utils.converted_to_normalized_uint8(self.image().data)
 
-        # self.image().data = rank.equalize(self.image().data, selem=disk(60))
+        self.image().data = rank.equalize(self.image().data, selem=disk(40))
 
         self.image().data = image_utils.converted_to_rgba(self.image().data)
         image_utils.print_image_info(self.image().data, 'converted')

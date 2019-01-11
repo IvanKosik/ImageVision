@@ -77,7 +77,7 @@ def resized_image(image, max_size, multichannel=False, anti_aliasing=True):
 # Returns resized image keeping aspect ration and padded to rectangular
 def resized_padded_to_rect_image(image, max_size, multichannel=False, anti_aliasing=True):
     resized = resized_image(image, max_size, multichannel, anti_aliasing)
-    return np.pad(image, ((0, max_size - resized.shape[0]), (0, max_size - resized.shape[1])), 'constant')
+    return np.pad(resized, ((0, max_size - resized.shape[0]), (0, max_size - resized.shape[1])), 'constant')
 
 
 def print_image_info(image, prefix=''):

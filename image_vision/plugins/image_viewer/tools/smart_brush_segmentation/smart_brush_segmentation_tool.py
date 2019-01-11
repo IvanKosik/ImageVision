@@ -82,11 +82,23 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         self.draw_brush(image_coords[0], image_coords[1])
         self.viewer.update_scaled_combined_image()
 
+    def erase_region(self, rr, cc):
+        self.tool_mask.data[rr, cc] = settings.TOOL_ERASER
+        self.viewer.mask().data[rr, cc] = settings.NO_MASK_COLOR
+
     def draw_brush(self, row, col):
         # Erase old tool mask
         self.tool_mask.data.fill(0)
 
         rr, cc = circle(row, col, self.radius, self.tool_mask.data.shape[:2])
+
+        if self.mode == Mode.ERASE:
+            self.erase_region(rr, cc)
+            return
+
+        no_mask_indexes = np.where((self.viewer.mask().data[rr, cc] == settings.NO_MASK_COLOR).all(axis=1))
+        rr = rr[no_mask_indexes]
+        cc = cc[no_mask_indexes]
         # self.tool_mask.data[rr, cc] = [0, 255, 0, 255]
 
         samples = self.viewer.image().data[rr, cc][:, 0]  # use only first channel
@@ -100,24 +112,28 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         label = label.ravel()  # 2D array (one column) to 1D array without copy
         centers = centers.ravel()
 
-        center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]
-        if center_pixel_indexes.size != 1:  # there are situations, when the center pixel is out of image
-            return
-        center_pixel_index = center_pixel_indexes[0]
-        #center_pixel_label = label[center_pixel_index]
-        center_pixel_label = 0 if centers[0] > centers[1] else 1
+        paint_central_pixel_cluster = False ### Temp
+        paint_dark_cluster = False ### Temp
 
-        if self.mode == Mode.ERASE:
-            self.tool_mask.data[rr, cc] = [255, 0, 0, 255]
+        if paint_central_pixel_cluster:
+            center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]
+            if center_pixel_indexes.size != 1:  # there are situations, when the center pixel is out of image
+                return
+            center_pixel_index = center_pixel_indexes[0]
+            painted_cluster_label = label[center_pixel_index]
         else:
-            brush_circle = self.tool_mask.data[rr, cc]
-            brush_circle[label == center_pixel_label] = settings.TOOL_FOREGROUND
-            brush_circle[label != center_pixel_label] = settings.TOOL_BACKGROUND
-            self.tool_mask.data[rr, cc] = brush_circle
+            # Label of light cluster
+            painted_cluster_label = 0 if centers[0] > centers[1] else 1
+            if paint_dark_cluster:
+                # Swapping 1 with 0 and 0 with 1
+                painted_cluster_label = 1 - painted_cluster_label
+
+        brush_circle = self.tool_mask.data[rr, cc]
+        brush_circle[label == painted_cluster_label] = settings.TOOL_FOREGROUND
+        brush_circle[label != painted_cluster_label] = settings.TOOL_BACKGROUND
+        self.tool_mask.data[rr, cc] = brush_circle
 
         if self.mode == Mode.DRAW:
             brush_circle = self.viewer.mask().data[rr, cc]
-            brush_circle[label == center_pixel_label] = settings.MASK_COLOR
+            brush_circle[label == painted_cluster_label] = settings.MASK_COLOR
             self.viewer.mask().data[rr, cc] = brush_circle
-        elif self.mode == Mode.ERASE:
-            self.viewer.mask().data[rr, cc] = settings.NO_MASK_COLOR
