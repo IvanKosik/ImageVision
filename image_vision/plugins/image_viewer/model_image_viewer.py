@@ -25,6 +25,10 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         self.mask_model = None
         self.nib_mask_model = None
 
+        self.view_path = ''
+        self.series_path = ''
+        self.masks_path = ''
+
     def dragEnterEvent(self, e):
         path = e.mimeData().urls()[0].toLocalFile()
         if not os.path.exists(path):
@@ -44,10 +48,15 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         self.actions_before_image_changed()
 
         if path.endswith('.nii.gz') or path.endswith('.hdr'):
+            self.series_path = os.path.dirname(path)
+            self.view_path = os.path.dirname(self.series_path)
+            self.masks_path = os.path.join(self.view_path, 'Masks')
+
             self.nib_model = nib.load(path)
             self.model = self.nib_model.get_fdata()
 
-            self.mask_path = path.split('.')[0] + '_mask.nii.gz'
+            # self.mask_path = path.split('.')[0] + '_mask.nii.gz'
+            self.mask_path = os.path.join(self.masks_path, os.path.basename(path))
             if os.path.exists(self.mask_path):
                 nib_mask_model = nib.load(self.mask_path)
                 self.mask_model = nib_mask_model.get_fdata()

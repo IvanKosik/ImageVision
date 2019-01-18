@@ -17,10 +17,22 @@ if __name__ == '__main__':
     import core.ann_utils
     from pathlib import Path
     core.ann_utils.predict_on_nifti_model_slices(
-        Path('D:/Projects/Temp/ImReg/Dicoms/New/1_002_t1_se_tra_20111116/O9-P_20111116_001_002_t1_se_tra.hdr'),
-        Path('D:/Temp/BrainModel_Loss017_NoOpimizer.h5'),
-        Path('D:/Projects/Temp/ImReg/Dicoms/New/1_002_t1_se_tra_20111116/ResultBrainMask.nii.gz'))
+        Path('D:/Projects/BsAnn/Brain/Data/Temp/Series/18_-p_20130307_001_003_t2_tse_tra_448.nii.gz'),
+        Path('D:/Projects/BsAnn/Brain/Models/t2_tse_tra/2019.01.18_Model_Loss008_n4.h5'),
+        Path('D:/Projects/BsAnn/Brain/Data/Temp/Masks/18_-p_20130307_001_003_t2_tse_tra_448.nii.gz'))
     '''
+
+
+    '''
+    import nibabel as nib
+    import numpy as np
+    nifti_image = nib.load('D:/Projects/Temp/ImReg/1.nii.gz')
+    im = nifti_image.get_fdata()
+    print(im.shape)
+    print(im.min(), im.max(), np.average(im))
+    print(np.unique(im))
+    '''
+
     '''
     import nibabel as nib
     import pydicom
