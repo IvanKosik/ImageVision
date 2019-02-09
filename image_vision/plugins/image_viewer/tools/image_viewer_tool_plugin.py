@@ -1,6 +1,4 @@
 from core.plugin import Plugin
-from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
-from plugins.main_window.main_window_plugin import MainWindowPlugin
 
 from PyQt5.QtCore import pyqtSignal
 
@@ -13,9 +11,12 @@ TOOLS_MENU_TITLE = 'Tools'
 class ImageViewerToolPlugin(Plugin):
     before_tool_activation = pyqtSignal(object)
 
-    def __init__(self, tool_module_str, tool_cls_str, action_name='', action_shortcut=''):
+    def __init__(self, image_viewer_plugin, main_window_plugin,
+                 tool_module_str, tool_cls_str, action_name='', action_shortcut=''):
         super().__init__()
 
+        self.image_viewer_plugin = image_viewer_plugin
+        self.main_window_plugin = main_window_plugin
         self.tool_module_str = tool_module_str
         self.tool_cls_str = tool_cls_str
         self.action_name = action_name
@@ -24,18 +25,18 @@ class ImageViewerToolPlugin(Plugin):
         self.tool = None
         self.image_viewer = None
 
-    def install_core(self, plugin_manager):
-        super().install_core(plugin_manager)
+    def install_core(self):
+        super().install_core()
 
-        self.image_viewer = plugin_manager.plugin(ImageViewerPlugin.name()).image_viewer
+        self.image_viewer = self.image_viewer_plugin.image_viewer
 
-    def install_gui(self, plugin_manager):
-        super().install_gui(plugin_manager)
+    def install_gui(self):
+        super().install_gui()
 
         if not self.action_name:
             return
 
-        main_window = plugin_manager.plugin(MainWindowPlugin.name()).main_window
+        main_window = self.main_window_plugin.main_window
         menu_bar_actions = main_window.menuBar().actions()
         tools_menu_action = next((action for action in menu_bar_actions if action.text() == TOOLS_MENU_TITLE), None)
         tools_menu = main_window.menuBar().addMenu(TOOLS_MENU_TITLE) if tools_menu_action is None \

@@ -6,15 +6,15 @@ class Plugin(QObject):
         super().__init__()
         print('init', self.name(), 'plugin')
 
-    def install(self, plugin_manager):
+    def install(self):
         print('install', self.name(), 'plugin')
-        self.install_core(plugin_manager)
-        self.install_gui(plugin_manager)
+        self.install_core()
+        self.install_gui()
 
-    def install_core(self, plugin_manager):
+    def install_core(self):
         pass
 
-    def install_gui(self, plugin_manager):
+    def install_gui(self):
         pass
 
     @classmethod

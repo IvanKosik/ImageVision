@@ -6,5 +6,5 @@ class PluginManager:
         return self.plugins[name]
 
     def install_plugin(self, plugin):
-        plugin.install(self)
+        plugin.install()
         self.plugins[plugin.name()] = plugin

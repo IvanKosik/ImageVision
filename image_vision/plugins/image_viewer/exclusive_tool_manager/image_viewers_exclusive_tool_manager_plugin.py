@@ -9,8 +9,8 @@ class ImageViewersExclusiveToolManagerPlugin(Plugin):
 
         self.active_tool = None
 
-    def install_core(self, plugin_manager):
-        super().install_core(plugin_manager)
+    def install_core(self):
+        super().install_core()
 
         for tool_plugin in self.exclusive_tool_plugins:
             tool_plugin.before_tool_activation.connect(self.on_before_tool_activation)

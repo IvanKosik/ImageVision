@@ -2,6 +2,7 @@ from plugins.image_viewer.tools.image_viewer_tool_plugin import ImageViewerToolP
 
 
 class PolygonSegmentationToolPlugin(ImageViewerToolPlugin):
-    def __init__(self):
-        super().__init__('plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool',
+    def __init__(self, image_viewer_plugin, main_window_plugin):
+        super().__init__(image_viewer_plugin, main_window_plugin,
+                         'plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool',
                          'PolygonSegmentationTool', 'Polygon')

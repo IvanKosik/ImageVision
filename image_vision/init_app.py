@@ -14,27 +14,29 @@ from plugins.ann_tester.ann_tester_plugin import AnnTesterPlugin
 
 print('init_app')
 
-image_viewer_plugin = ImageViewerPlugin()
-smart_brush_plugin = SmartBrushSegmentationToolPlugin()
-polygon_segmentation_tool_plugin = PolygonSegmentationToolPlugin()
-crop_plugin = CropToolPlugin()
-grab_cut_plugin = GrabCutSegmentationToolPlugin()
-# smart_brush_plugin = ImageViewerToolPlugin(SmartBrushSegmentationTool, 'Smart Brush')
-# polygon_segmentation = ImageViewerToolPlugin(PolygonSegmentationTool, 'Polygon')
+main_window_plugin = MainWindowPlugin()
+image_viewer_plugin = ImageViewerPlugin(main_window_plugin)
+dicom_loader_plugin = DicomLoaderPlugin(main_window_plugin)
+ann_prediction_plugin = AnnPredictionToolPlugin(image_viewer_plugin, main_window_plugin)
 
-exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, polygon_segmentation_tool_plugin, ThresholdingToolPlugin()]
+smart_brush_plugin = SmartBrushSegmentationToolPlugin(image_viewer_plugin, main_window_plugin)
+grab_cut_plugin = GrabCutSegmentationToolPlugin(image_viewer_plugin, main_window_plugin)
+crop_plugin = CropToolPlugin(image_viewer_plugin, main_window_plugin)
+polygon_segmentation_tool_plugin = PolygonSegmentationToolPlugin(image_viewer_plugin, main_window_plugin)
+thresholding_tool_plugin = ThresholdingToolPlugin(image_viewer_plugin, main_window_plugin)
+
+exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, polygon_segmentation_tool_plugin,
+                          thresholding_tool_plugin]
 exclusive_tool_manager_plugin = ImageViewersExclusiveToolManagerPlugin(exclusive_tool_plugins)
 
-plugins = [MainWindowPlugin(), image_viewer_plugin, DicomLoaderPlugin()] + exclusive_tool_plugins + [exclusive_tool_manager_plugin, AnnPredictionToolPlugin()] #exclusive_tool_plugins  #polygon_segmentation_tool_plugin]#smart_brush_plugin]#, polygon_segmentation]
+plugins = [main_window_plugin, image_viewer_plugin, dicom_loader_plugin, ann_prediction_plugin,
+           exclusive_tool_manager_plugin] + exclusive_tool_plugins
 
 plugin_manager = PluginManager()
 for plugin in plugins:
     plugin_manager.install_plugin(plugin)
 
 smart_brush_plugin.activate_tool()
-#polygon_segmentation_tool_plugin.activate_tool()
-# crop_plugin.activate_tool()
-#grab_cut_plugin.activate_tool()
 
 # image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')

@@ -113,7 +113,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         centers = centers.ravel()
 
         paint_central_pixel_cluster = False ### Temp
-        paint_dark_cluster = True ### Temp
+        paint_dark_cluster = False ### Temp
 
         if paint_central_pixel_cluster:
             center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]

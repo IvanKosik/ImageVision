@@ -8,8 +8,8 @@ class MainWindowPlugin(Plugin):
 
         self.main_window = None
 
-    def install_gui(self, plugin_manager):
-        super().install_gui(plugin_manager)
+    def install_gui(self):
+        super().install_gui()
 
         self.main_window = MainWindow()
         self.main_window.show()
