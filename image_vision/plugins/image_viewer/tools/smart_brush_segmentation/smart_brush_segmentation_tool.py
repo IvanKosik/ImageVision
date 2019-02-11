@@ -61,7 +61,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
             self.mode = Mode.SHOW
 
     def on_cntrl_wheel_scrolled(self, e):
-        self.radius += e.angleDelta().y() / 10
+        self.radius += e.angleDelta().y() / 40
         self.draw_brush_event(e)
 
     def on_mouse_pressed(self, e):

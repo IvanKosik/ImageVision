@@ -2,6 +2,7 @@ from core.plugin_manager import PluginManager
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 from plugins.dicom_loader.dicom_loader_plugin import DicomLoaderPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
+from plugins.image_viewer.colormap.table_widget.colormap_table_widget_plugin import ColoormapTableWidgetPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
 from plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool_plugin import PolygonSegmentationToolPlugin
 from plugins.image_viewer.tools.crop.crop_tool_plugin import CropToolPlugin
@@ -16,6 +17,7 @@ print('init_app')
 
 main_window_plugin = MainWindowPlugin()
 image_viewer_plugin = ImageViewerPlugin(main_window_plugin)
+colormap_table_widget_plugin = ColoormapTableWidgetPlugin(main_window_plugin)
 dicom_loader_plugin = DicomLoaderPlugin(main_window_plugin)
 ann_prediction_plugin = AnnPredictionToolPlugin(image_viewer_plugin, main_window_plugin)
 
@@ -29,8 +31,8 @@ exclusive_tool_plugins = [smart_brush_plugin, grab_cut_plugin, crop_plugin, poly
                           thresholding_tool_plugin]
 exclusive_tool_manager_plugin = ImageViewersExclusiveToolManagerPlugin(exclusive_tool_plugins)
 
-plugins = [main_window_plugin, image_viewer_plugin, dicom_loader_plugin, ann_prediction_plugin,
-           exclusive_tool_manager_plugin] + exclusive_tool_plugins
+plugins = [main_window_plugin, image_viewer_plugin, colormap_table_widget_plugin, dicom_loader_plugin,
+           ann_prediction_plugin, exclusive_tool_manager_plugin] + exclusive_tool_plugins
 
 plugin_manager = PluginManager()
 for plugin in plugins:

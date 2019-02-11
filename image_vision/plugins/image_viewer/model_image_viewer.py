@@ -12,7 +12,7 @@ import numpy as np
 import os
 
 from skimage.morphology import disk
-from skimage.filters import rank
+from skimage.filters import rank, gaussian
 
 
 class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
@@ -79,15 +79,22 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         image_utils.print_image_info(self.image().data, 'original')
         self.image().data = image_utils.converted_to_normalized_uint8(self.image().data)
 
+
         self.image().data = rank.equalize(self.image().data, selem=disk(40))
+
+        # mild smoothing
+        self.image().data = gaussian(self.image().data)
+        self.image().data = self.image().data * 255
+        self.image().data = self.image().data.astype(np.uint8)
+
 
         self.image().data = image_utils.converted_to_rgba(self.image().data)
         image_utils.print_image_info(self.image().data, 'converted')
 
         m = self.mask_model[:, :, self.slice_number]
         m = image_utils.converted_to_normalized_uint8(m)
-        m = image_utils.converted_to_rgba_mask(m)
-        m[np.where((m != [0, 0, 0, 0]).all(axis=2))] = settings.MASK_COLOR
+#        m = image_utils.converted_to_rgba_mask(m)
+        m[m != settings.NO_MASK_CLASS] = settings.MASK_CLASS
         self.mask_layer.image = Image(np.ascontiguousarray(m))
 
         self.initial_mask = Image(np.copy(m))
