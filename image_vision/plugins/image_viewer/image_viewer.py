@@ -28,6 +28,22 @@ class ImageViewer(QLabel):
 
         self.initial_mask = None
 
+        self.lut = np.zeros((10, 4), np.uint8)
+        self.lut[settings.NO_MASK_CLASS] = settings.NO_MASK_COLOR
+        self.lut[settings.MASK_CLASS] = settings.MASK_COLOR
+        self.lut[settings.TOOL_BACKGROUND_CLASS] = settings.TOOL_BACKGROUND
+        self.lut[settings.TOOL_FOREGROUND_CLASS] = settings.TOOL_FOREGROUND
+        self.lut[settings.TOOL_ERASER_CLASS] = settings.TOOL_ERASER
+        self.lut[settings.TOOL_NO_COLOR_CLASS] = settings.TOOL_NO_COLOR
+        '''
+        self.lut = np.array([settings.NO_MASK_COLOR,
+                             settings.MASK_COLOR,
+                             settings.TOOL_BACKGROUND,
+                             settings.TOOL_FOREGROUND,
+                             settings.TOOL_ERASER,
+                             settings.TOOL_NO_COLOR])
+        '''
+
         self.combined_qimage = None
         self.scaled_combined_qimage = None
         self.scale = None
@@ -208,7 +224,8 @@ class ImageViewer(QLabel):
             mask[np.where((mask != [0, 0, 0, 0]).all(axis=2))] = settings.MASK_COLOR
             image_utils.print_image_info(mask, 'mask converted')
         else:
-            mask = np.zeros(self.image().data.shape, np.uint8)
+#            mask = np.zeros(self.image().data.shape, np.uint8)
+            mask = np.full((self.image().data.shape[0], self.image().data.shape[1]), settings.NO_MASK_CLASS, np.uint8)
         self.mask_layer.image = Image(mask)
         self.initial_mask = Image(np.copy(mask))
         self.image_changed.emit()
@@ -226,7 +243,8 @@ class ImageViewer(QLabel):
                 layer = self.layers[i]
                 if layer.image is not None and layer.visible:
                     painter.setOpacity(layer.opacity)
-                    painter.drawImage(0, 0, image_utils.numpy_rgba_image_to_qimage(layer.image.data))
+                    rgba_layer_image_data = self.lut[layer.image.data]
+                    painter.drawImage(0, 0, image_utils.numpy_rgba_image_to_qimage(rgba_layer_image_data))
             painter.end()
 
         self.scaled_combined_qimage = self.combined_qimage.scaled(self.width(), self.height(),

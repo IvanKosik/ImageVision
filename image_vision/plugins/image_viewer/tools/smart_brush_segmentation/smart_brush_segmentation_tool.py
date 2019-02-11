@@ -83,8 +83,8 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         self.viewer.update_scaled_combined_image()
 
     def erase_region(self, rr, cc):
-        self.tool_mask.data[rr, cc] = settings.TOOL_ERASER
-        self.viewer.mask().data[rr, cc] = settings.NO_MASK_COLOR
+        self.tool_mask.data[rr, cc] = settings.TOOL_ERASER_CLASS
+        self.viewer.mask().data[rr, cc] = settings.NO_MASK_CLASS
 
     def draw_brush(self, row, col):
         # Erase old tool mask
@@ -96,10 +96,9 @@ class SmartBrushSegmentationTool(ImageViewerTool):
             self.erase_region(rr, cc)
             return
 
-        no_mask_indexes = np.where((self.viewer.mask().data[rr, cc] == settings.NO_MASK_COLOR).all(axis=1))
+        no_mask_indexes = self.viewer.mask().data[rr, cc] == settings.NO_MASK_CLASS
         rr = rr[no_mask_indexes]
         cc = cc[no_mask_indexes]
-        # self.tool_mask.data[rr, cc] = [0, 255, 0, 255]
 
         samples = self.viewer.image().data[rr, cc][:, 0]  # use only first channel
         samples = samples.astype(np.float32)
@@ -129,11 +128,11 @@ class SmartBrushSegmentationTool(ImageViewerTool):
                 painted_cluster_label = 1 - painted_cluster_label
 
         brush_circle = self.tool_mask.data[rr, cc]
-        brush_circle[label == painted_cluster_label] = settings.TOOL_FOREGROUND
-        brush_circle[label != painted_cluster_label] = settings.TOOL_BACKGROUND
+        brush_circle[label == painted_cluster_label] = settings.TOOL_FOREGROUND_CLASS
+        brush_circle[label != painted_cluster_label] = settings.TOOL_BACKGROUND_CLASS
         self.tool_mask.data[rr, cc] = brush_circle
 
         if self.mode == Mode.DRAW:
             brush_circle = self.viewer.mask().data[rr, cc]
-            brush_circle[label == painted_cluster_label] = settings.MASK_COLOR
+            brush_circle[label == painted_cluster_label] = settings.MASK_CLASS
             self.viewer.mask().data[rr, cc] = brush_circle

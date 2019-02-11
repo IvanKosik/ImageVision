@@ -38,5 +38,5 @@ for plugin in plugins:
 
 smart_brush_plugin.activate_tool()
 
-# image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
+image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
