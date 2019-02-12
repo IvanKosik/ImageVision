@@ -1,4 +1,4 @@
-from plugins.image_viewer.colormap.colormap import Colormap
+from core.colormap import Colormap
 
 from PyQt5.QtCore import Qt, QObject, QAbstractTableModel, QModelIndex
 from PyQt5.Qt import QBrush, QColor
@@ -7,10 +7,10 @@ from typing import Any
 
 
 class ColormapTableModel(QAbstractTableModel):
-    def __init__(self, parent: QObject = None):
+    def __init__(self, colormap: Colormap, parent: QObject = None):
         super().__init__(parent)
 
-        self.colormap = Colormap()
+        self.colormap = colormap
 
         self.headers = ('Class', 'Color')
 

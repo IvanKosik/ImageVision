@@ -2,7 +2,7 @@ from core.plugin_manager import PluginManager
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 from plugins.dicom_loader.dicom_loader_plugin import DicomLoaderPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
-from plugins.image_viewer.colormap.table_widget.colormap_table_widget_plugin import ColoormapTableWidgetPlugin
+from plugins.image_viewer.colormap_table_widget.colormap_table_widget_plugin import ColormapTableWidgetPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
 from plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool_plugin import PolygonSegmentationToolPlugin
 from plugins.image_viewer.tools.crop.crop_tool_plugin import CropToolPlugin
@@ -10,14 +10,12 @@ from plugins.image_viewer.tools.grab_cut_segmentation.grab_cut_segmentation_tool
 from plugins.image_viewer.exclusive_tool_manager.image_viewers_exclusive_tool_manager_plugin import ImageViewersExclusiveToolManagerPlugin
 from plugins.image_viewer.tools.ann_prediction.ann_prediction_tool_plugin import AnnPredictionToolPlugin
 from plugins.image_viewer.tools.thresholding.thresholding_tool_plugin import ThresholdingToolPlugin
-from plugins.ann_tester.ann_tester_plugin import AnnTesterPlugin
-
 
 print('init_app')
 
 main_window_plugin = MainWindowPlugin()
 image_viewer_plugin = ImageViewerPlugin(main_window_plugin)
-colormap_table_widget_plugin = ColoormapTableWidgetPlugin(main_window_plugin)
+colormap_table_widget_plugin = ColormapTableWidgetPlugin(main_window_plugin, image_viewer_plugin)
 dicom_loader_plugin = DicomLoaderPlugin(main_window_plugin)
 ann_prediction_plugin = AnnPredictionToolPlugin(image_viewer_plugin, main_window_plugin)
 
@@ -40,5 +38,5 @@ for plugin in plugins:
 
 smart_brush_plugin.activate_tool()
 
-image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
+# image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')

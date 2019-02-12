@@ -80,7 +80,7 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         self.image().data = image_utils.converted_to_normalized_uint8(self.image().data)
 
 
-        self.image().data = rank.equalize(self.image().data, selem=disk(40))
+        # self.image().data = rank.equalize(self.image().data, selem=disk(40))
 
         # mild smoothing
         self.image().data = gaussian(self.image().data)
@@ -92,9 +92,10 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         image_utils.print_image_info(self.image().data, 'converted')
 
         m = self.mask_model[:, :, self.slice_number]
-        m = image_utils.converted_to_normalized_uint8(m)
+#        m = image_utils.converted_to_normalized_uint8(m)
+        m = m.astype(np.uint8)
 #        m = image_utils.converted_to_rgba_mask(m)
-        m[m != settings.NO_MASK_CLASS] = settings.MASK_CLASS
+#        m[m != settings.NO_MASK_CLASS] = settings.MASK_CLASS
         self.mask_layer.image = Image(np.ascontiguousarray(m))
 
         self.initial_mask = Image(np.copy(m))
@@ -111,22 +112,28 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         if (mask_data != self.initial_mask.data).any():
             print('save', self.mask_path)
 
+            '''
             binary_mask = np.zeros(mask_data.shape[:2], np.uint8)
             binary_mask[np.where((mask_data == settings.MASK_COLOR).all(axis=2))] = 255
-
             self.mask_model[:, :, self.slice_number] = binary_mask
+            '''
+
+            self.mask_model[:, :, self.slice_number] = mask_data
 
             self.nib_mask_model = nib.Nifti1Image(self.mask_model, affine=self.nib_model.affine, header=self.nib_model.header)
             self.nib_mask_model.to_filename(self.mask_path)
 
     def change_slice(self, number):
+        if self.model is None:
+            return
+
         self.actions_before_image_changed()
         self.show_slice(number)
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Right:
-            # Load next image and mask in folder
-            self.change_slice(self.slice_number + 1)
-        elif e.key() == Qt.Key_Left:
-            # Load previous image and mask in folder
-            self.change_slice(self.slice_number - 1)
+    def show_next_image(self):
+        # Load next image and mask in folder
+        self.change_slice(self.slice_number + 1)
+
+    def show_previous_image(self):
+        # Load previous image and mask in folder
+        self.change_slice(self.slice_number - 1)

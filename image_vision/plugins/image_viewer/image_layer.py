@@ -4,7 +4,7 @@ from core.image import Image
 class ImageLayer:
     max_id = 0
 
-    def __init__(self, name='', image: Image = None, visible=True, opacity=0.3):
+    def __init__(self, name='', image: Image = None, visible=True, opacity=1):
         self.id = ImageLayer.max_id
         ImageLayer.max_id += 1
 

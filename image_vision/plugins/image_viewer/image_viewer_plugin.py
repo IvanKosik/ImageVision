@@ -19,7 +19,7 @@ class ImageViewerPlugin(Plugin):
     def install_core(self):
         super().install_core()
 
-        self.image_viewer = ImageViewer(self.main_window_plugin.main_window)
+        self.image_viewer = ModelImageViewer(self.main_window_plugin.main_window)
 
     def install_gui(self):
         super().install_gui()
@@ -33,3 +33,6 @@ class ImageViewerPlugin(Plugin):
 
         toggle_image_view_action = view_menu.addAction(
             'Image View', self.image_viewer.toogle_image_view, Qt.CTRL + Qt.Key_I)
+
+        view_menu.addAction('Next Image', self.image_viewer.show_next_image, Qt.CTRL + Qt.Key_Right)
+        view_menu.addAction('Previous Image', self.image_viewer.show_previous_image, Qt.CTRL + Qt.Key_Left)

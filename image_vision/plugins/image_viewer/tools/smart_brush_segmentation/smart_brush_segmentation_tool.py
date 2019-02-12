@@ -112,7 +112,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         centers = centers.ravel()
 
         paint_central_pixel_cluster = False ### Temp
-        paint_dark_cluster = False ### Temp
+        paint_dark_cluster = True ### Temp
 
         if paint_central_pixel_cluster:
             center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]
@@ -134,5 +134,5 @@ class SmartBrushSegmentationTool(ImageViewerTool):
 
         if self.mode == Mode.DRAW:
             brush_circle = self.viewer.mask().data[rr, cc]
-            brush_circle[label == painted_cluster_label] = settings.MASK_CLASS
+            brush_circle[label == painted_cluster_label] = settings.selected_color_class  #% settings.MASK_CLASS
             self.viewer.mask().data[rr, cc] = brush_circle

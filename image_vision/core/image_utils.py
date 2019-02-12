@@ -53,7 +53,7 @@ def numpy_rgba_image_to_qimage(numpy_image):
 
     height, width, channel = numpy_image.shape
     bytes_per_line = 4 * width
-    return QImage(numpy_image.data, width, height, bytes_per_line, QImage.Format_RGBA8888_Premultiplied)
+    return QImage(numpy_image.data, width, height, bytes_per_line, QImage.Format_RGBA8888) #QImage.Format_RGBA8888_Premultiplied)
 
 
 def numpy_bgra_image_to_qimage(numpy_image):
