@@ -231,7 +231,7 @@ class ImageViewer(QLabel):
                 layer = self.layers[i]
                 if layer.image is not None and layer.visible:
                     painter.setOpacity(layer.opacity)
-                    rgba_layer_image_data = self.colormap.colored_image(layer.image.data)
+                    rgba_layer_image_data = self.colormap.colored_premultiplied_image(layer.image.data)
                     painter.drawImage(0, 0, image_utils.numpy_rgba_image_to_qimage(rgba_layer_image_data))
             painter.end()
 

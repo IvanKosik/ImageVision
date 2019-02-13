@@ -88,7 +88,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
 
     def draw_brush(self, row, col):
         # Erase old tool mask
-        self.tool_mask.data.fill(0)
+        self.tool_mask.data.fill(settings.TOOL_NO_COLOR_CLASS)
 
         rr, cc = circle(row, col, self.radius, self.tool_mask.data.shape[:2])
 

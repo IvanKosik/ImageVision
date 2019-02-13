@@ -47,13 +47,13 @@ def numpy_bgr_image_to_qimage(numpy_image):
     return numpy_rgb_image_to_qimage(numpy_image).rgbSwapped()
 
 
-def numpy_rgba_image_to_qimage(numpy_image):
+def numpy_rgba_image_to_qimage(numpy_image, image_format: QImage.Format = QImage.Format_RGBA8888_Premultiplied):
     # print("STRIDES", numpy_image.strides[0])
     # print(numpy_image.flags['C_CONTIGUOUS'])
 
     height, width, channel = numpy_image.shape
-    bytes_per_line = 4 * width
-    return QImage(numpy_image.data, width, height, bytes_per_line, QImage.Format_RGBA8888) #QImage.Format_RGBA8888_Premultiplied)
+    bytes_per_line = width * channel
+    return QImage(numpy_image.data, width, height, bytes_per_line, image_format)
 
 
 def numpy_bgra_image_to_qimage(numpy_image):
