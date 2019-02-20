@@ -36,15 +36,25 @@ class GrabCutSegmentationTool(ImageViewerTool):
         self.bgd_model = np.zeros((1, 65), np.float64)
         self.fgd_model = np.zeros((1, 65), np.float64)
 
-        mask_pixels = np.where((self.viewer.mask().data == settings.MASK_COLOR).all(axis=2))
-        self.tool_mask.data[mask_pixels] = settings.TOOL_FOREGROUND
+        # self.tool_mask.data[np.where(((self.viewer.mask().data != settings.NO_MASK_CLASS)
+        #                               & (self.viewer.mask().data != self.mask_class)))] = settings.TOOL_BACKGROUND_CLASS
+        self.tool_mask.data[self.viewer.mask().data != settings.NO_MASK_CLASS] = settings.TOOL_BACKGROUND_CLASS
+
+        mask_pixels = self.viewer.mask().data == self.mask_class
+        self.tool_mask.data[mask_pixels] = settings.TOOL_FOREGROUND_CLASS
+
+        mask_pixels_indexes = np.transpose(mask_pixels.nonzero())
 
         self.foreground_pixels.clear()
-        for i in range(len(mask_pixels[0])):
-            self.foreground_pixels.add((mask_pixels[0][i], mask_pixels[1][i]))
+        for i in range(mask_pixels_indexes.shape[0]):
+            self.foreground_pixels.add(tuple(mask_pixels_indexes[i]))
 
         self.rect_rr = []
         self.rect_cc = []
+
+    def on_viewer_colormap_active_class_changed(self, color_class: int):
+        super().on_viewer_colormap_active_class_changed(color_class)
+        self.recreate_tool_mask()
 
     def eventFilter(self, watched_obj, e):
         if e.type() == QEvent.MouseButtonPress:
@@ -67,10 +77,10 @@ class GrabCutSegmentationTool(ImageViewerTool):
         self.last_mouse_pos = (image_coords[0], image_coords[1])
 
         if e.buttons() == Qt.LeftButton:
-            self.tool_mask.data[image_coords[0], image_coords[1]] = settings.TOOL_FOREGROUND
+            self.tool_mask.data[image_coords[0], image_coords[1]] = settings.TOOL_FOREGROUND_CLASS
             self.foreground_pixels.add((image_coords[0], image_coords[1]))
         elif e.buttons() == Qt.RightButton:
-            self.tool_mask.data[image_coords[0], image_coords[1]] = settings.TOOL_BACKGROUND
+            self.tool_mask.data[image_coords[0], image_coords[1]] = settings.TOOL_BACKGROUND_CLASS
             self.foreground_pixels.discard((image_coords[0], image_coords[1]))
 
     def on_mouse_moved(self, e):
@@ -81,11 +91,11 @@ class GrabCutSegmentationTool(ImageViewerTool):
 
         rr, cc = line(self.last_mouse_pos[0], self.last_mouse_pos[1], image_coords[0], image_coords[1])
         if e.buttons() == Qt.LeftButton:
-            self.tool_mask.data[rr, cc] = settings.TOOL_FOREGROUND
+            self.tool_mask.data[rr, cc] = settings.TOOL_FOREGROUND_CLASS
             for i in range(len(rr)):
                 self.foreground_pixels.add((rr[i], cc[i]))
         elif e.buttons() == Qt.RightButton:
-            self.tool_mask.data[rr, cc] = settings.TOOL_BACKGROUND
+            self.tool_mask.data[rr, cc] = settings.TOOL_BACKGROUND_CLASS
             for i in range(len(rr)):
                 self.foreground_pixels.discard((rr[i], cc[i]))
         self.last_mouse_pos = (image_coords[0], image_coords[1])
@@ -108,7 +118,7 @@ class GrabCutSegmentationTool(ImageViewerTool):
 
     def mask_grab_cut(self):
         # Erase old rectangle around foreground
-        self.tool_mask.data[self.rect_rr, self.rect_cc] = settings.TOOL_NO_COLOR
+        self.tool_mask.data[self.rect_rr, self.rect_cc] = settings.TOOL_NO_COLOR_CLASS
 
         mask = np.zeros(self.viewer.image().data.shape[:2], np.uint8)
 
@@ -119,10 +129,10 @@ class GrabCutSegmentationTool(ImageViewerTool):
             max_r = max(self.foreground_pixels, key=lambda p: p[0])[0]
             max_c = max(self.foreground_pixels, key=lambda p: p[1])[1]
             # rr, cc = rectangle((min_x, min_y), end=(max_x, max_y), shape=self.viewer.tool_mask.shape[:2])
-            pad = 2
+            pad = 5
             self.rect_rr, self.rect_cc = polygon_perimeter([min_r - pad, min_r - pad, max_r + pad, max_r + pad],
                                                            [min_c - pad, max_c + pad, max_c + pad, min_c - pad])
-            self.tool_mask.data[self.rect_rr, self.rect_cc] = settings.TOOL_BACKGROUND
+            self.tool_mask.data[self.rect_rr, self.rect_cc] = settings.TOOL_BACKGROUND_CLASS
 
             # wherever it is marked white (sure foreground), change mask=1
             # wherever it is marked black (sure background), change mask=0
@@ -139,8 +149,8 @@ class GrabCutSegmentationTool(ImageViewerTool):
         # print(aaa.shape)
         # print(aaa)
         # print('bbb')
-        mask[np.where((self.tool_mask.data == settings.TOOL_FOREGROUND).all(axis=2))] = 1
-        mask[np.where((self.tool_mask.data == settings.TOOL_BACKGROUND).all(axis=2))] = 0
+        mask[self.tool_mask.data == settings.TOOL_FOREGROUND_CLASS] = 1
+        mask[self.tool_mask.data == settings.TOOL_BACKGROUND_CLASS] = 0
         # print('after')
 
         try:
@@ -150,7 +160,8 @@ class GrabCutSegmentationTool(ImageViewerTool):
         except:
             print('cv2.grabCut exception')
 
-        self.viewer.mask().data[np.where(((mask == 1) | (mask == 3)))] = settings.MASK_COLOR
-        self.viewer.mask().data[np.where(((mask == 0) | (mask == 2)))] = settings.NO_MASK_COLOR
+        self.viewer.mask().data[np.where(((mask == 1) | (mask == 3)))] = self.mask_class
+        self.viewer.mask().data[np.where(((mask == 0) | (mask == 2)) & (self.viewer.mask().data == self.mask_class))] \
+            = settings.NO_MASK_CLASS
         # cv2.GC_PR_BGD
         # cv2.GC_FGD

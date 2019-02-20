@@ -24,4 +24,6 @@ class ColormapTableView(QTableView):
         class_column_number = 0
         class_model_index = self.model().index(current_index.row(), class_column_number)
         selected_color_class = class_model_index.data()
-        settings.selected_color_class = selected_color_class
+
+        self.model().activate_color_class(selected_color_class)
+        #% settings.selected_color_class = selected_color_class

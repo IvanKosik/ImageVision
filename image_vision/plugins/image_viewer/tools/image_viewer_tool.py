@@ -20,6 +20,8 @@ class ImageViewerTool(QObject):
         self.tool_mask = None
         self.tool_mask_layer = None
 
+        self.mask_class = None
+
     @classmethod
     def name(cls):
         return cls.__name__
@@ -42,6 +44,7 @@ class ImageViewerTool(QObject):
 
         self.viewer.before_image_changed.connect(self.on_before_viewer_image_changed)
         self.viewer.image_changed.connect(self.on_viewer_image_changed)
+        self.viewer.colormap_active_class_changed.connect(self.on_viewer_colormap_active_class_changed)
 
     def deactivate(self):
         print('deactivate tool', self.name())
@@ -51,6 +54,7 @@ class ImageViewerTool(QObject):
         self.deactivated.emit(self)
 
     def _deactivation(self):
+        self.viewer.colormap_active_class_changed.disconnect(self.on_viewer_colormap_active_class_changed)
         self.viewer.image_changed.disconnect(self.on_viewer_image_changed)
         self.viewer.before_image_changed.disconnect(self.on_before_viewer_image_changed)
 
@@ -62,6 +66,9 @@ class ImageViewerTool(QObject):
 
     def on_before_viewer_image_changed(self):
         pass
+
+    def on_viewer_colormap_active_class_changed(self, color_class: int):
+        self.mask_class = color_class
 
     def on_viewer_image_changed(self):
         self.recreate_tool_mask()

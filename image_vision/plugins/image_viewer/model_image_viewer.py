@@ -59,9 +59,9 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
             self.mask_path = os.path.join(self.masks_path, os.path.basename(path))
             if os.path.exists(self.mask_path):
                 nib_mask_model = nib.load(self.mask_path)
-                self.mask_model = nib_mask_model.get_fdata()
+                self.mask_model = np.asarray(nib_mask_model.dataobj)
             else:
-                self.mask_model = np.zeros_like(self.model, dtype=np.uint8)
+                self.mask_model = np.zeros_like(self.model, dtype=int)
         else:
             return
 

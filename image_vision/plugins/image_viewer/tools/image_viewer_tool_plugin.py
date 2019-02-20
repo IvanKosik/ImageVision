@@ -53,6 +53,7 @@ class ImageViewerToolPlugin(Plugin):
         if self.tool is None:
             self.create_tool()
 
+        self.tool.mask_class = self.image_viewer.colormap.active_color_class
         self.tool.activate()
 
     def deactivate_tool(self):

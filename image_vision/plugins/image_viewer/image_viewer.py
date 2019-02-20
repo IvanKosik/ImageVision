@@ -15,6 +15,7 @@ import os
 class ImageViewer(QLabel):
     before_image_changed = pyqtSignal()
     image_changed = pyqtSignal()
+    colormap_active_class_changed = pyqtSignal(int)
 
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
@@ -31,6 +32,7 @@ class ImageViewer(QLabel):
 
         self.colormap = Colormap()
         self.colormap.changed.connect(self.update_scaled_combined_image)
+        self.colormap.active_color_class_changed.connect(self.colormap_active_class_changed)
 
         self.combined_qimage = None
         self.scaled_combined_qimage = None

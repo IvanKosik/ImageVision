@@ -63,6 +63,9 @@ class ColormapTableModel(QAbstractTableModel):
             flags = flags | Qt.ItemIsEditable
         return flags
 
+    def activate_color_class(self, color_class: int):
+        self.colormap.set_active_color_class(color_class)
+
 
     '''
 

@@ -7,6 +7,7 @@ from enum import Enum
 import cv2
 import numpy as np
 from skimage.draw import circle
+import skimage.measure
 
 
 RADIUS = 22
@@ -25,6 +26,11 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         self.mode = Mode.SHOW
 
         self.radius = RADIUS
+
+        self.paint_central_pixel_cluster = True
+        self.paint_dark_cluster = False
+
+        self.paint_connected_component = True
 
     def _activation(self):
         super()._activation()
@@ -111,10 +117,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         label = label.ravel()  # 2D array (one column) to 1D array without copy
         centers = centers.ravel()
 
-        paint_central_pixel_cluster = False ### Temp
-        paint_dark_cluster = True ### Temp
-
-        if paint_central_pixel_cluster:
+        if self.paint_central_pixel_cluster:
             center_pixel_indexes = np.where(np.logical_and(rr == row, cc == col))[0]
             if center_pixel_indexes.size != 1:  # there are situations, when the center pixel is out of image
                 return
@@ -123,7 +126,7 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         else:
             # Label of light cluster
             painted_cluster_label = 0 if centers[0] > centers[1] else 1
-            if paint_dark_cluster:
+            if self.paint_dark_cluster:
                 # Swapping 1 with 0 and 0 with 1
                 painted_cluster_label = 1 - painted_cluster_label
 
@@ -132,7 +135,16 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         brush_circle[label != painted_cluster_label] = settings.TOOL_BACKGROUND_CLASS
         self.tool_mask.data[rr, cc] = brush_circle
 
+        if self.paint_central_pixel_cluster and self.paint_connected_component:
+            labeled_tool_mask = skimage.measure.label(self.tool_mask.data, background=settings.TOOL_NO_COLOR_CLASS)
+            label_under_mouse = labeled_tool_mask[row, col]
+            self.tool_mask.data[(self.tool_mask.data == settings.TOOL_FOREGROUND_CLASS) &
+                                (labeled_tool_mask != label_under_mouse)] = settings.TOOL_BACKGROUND_2_CLASS
+
         if self.mode == Mode.DRAW:
+            self.viewer.mask().data[self.tool_mask.data == settings.TOOL_FOREGROUND_CLASS] = self.mask_class
+            '''
             brush_circle = self.viewer.mask().data[rr, cc]
-            brush_circle[label == painted_cluster_label] = settings.selected_color_class  #% settings.MASK_CLASS
+            brush_circle[label == painted_cluster_label] = self.mask_class
             self.viewer.mask().data[rr, cc] = brush_circle
+            '''

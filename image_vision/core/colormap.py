@@ -7,12 +7,13 @@ import numpy as np
 
 
 class Colormap(QObject):
-    changed = pyqtSignal()
+    changed = pyqtSignal()  #% rename to lut_changed
+    active_color_class_changed = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
 
-        self.lut = np.zeros((11, 4), np.uint8)
+        self.lut = np.zeros((12, 4), np.uint8)
         self.premultiplied_lut = np.zeros_like(self.lut)
 
         self.set_class_color_array(settings.NO_MASK_CLASS, settings.NO_MASK_COLOR)
@@ -27,6 +28,9 @@ class Colormap(QObject):
         self.set_class_color_array(8, [120, 180, 255, 80])
         self.set_class_color_array(9, [255, 120, 180, 80])
         self.set_class_color_array(10, [120, 255, 180, 80])
+        self.set_class_color_array(settings.TOOL_BACKGROUND_2_CLASS, settings.TOOL_BACKGROUND_2)
+
+        self.active_color_class = settings.MASK_CLASS
 
         '''
         self.lut = np.array([settings.NO_MASK_COLOR,
@@ -36,6 +40,11 @@ class Colormap(QObject):
                              settings.TOOL_ERASER,
                              settings.TOOL_NO_COLOR])
         '''
+
+    def set_active_color_class(self, class_number: int):
+        if self.active_color_class != class_number:
+            self.active_color_class = class_number
+            self.active_color_class_changed.emit(class_number)
 
     def set_class_color_array(self, class_number: int, color_array):
         if (self.lut[class_number] != color_array).any():
