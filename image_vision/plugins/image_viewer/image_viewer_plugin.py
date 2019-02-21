@@ -19,7 +19,7 @@ class ImageViewerPlugin(Plugin):
     def install_core(self):
         super().install_core()
 
-        self.image_viewer = ModelImageViewer(self.main_window_plugin.main_window)
+        self.image_viewer = ImageViewer(self.main_window_plugin.main_window)
 
     def install_gui(self):
         super().install_gui()
