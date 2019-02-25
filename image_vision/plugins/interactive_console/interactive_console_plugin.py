@@ -1,24 +1,12 @@
 from core.plugin import Plugin
-from plugins.interactive_console.interactive_console import InteractiveConsole
+from .interactive_console import InteractiveConsole
+from .interactive_console_widget import InteractiveConsoleWidget
 
 from PyQt5.Qt import Qt
-from PyQt5.QtWidgets import QDockWidget, QTextEdit, QLineEdit, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QDockWidget, QShortcut
 
 import io
-import sys
-from contextlib import redirect_stdout, redirect_stderr
-
-
-class Capturing(list):
-    def __enter__(self):
-        self._stdout = sys.stdout
-        sys.stdout = self._stringio = io.StringIO()
-        return self
-
-    def __exit__(self, *args):
-        self.extend(self._stringio.getvalue().splitlines())
-        del self._stringio    # free up some memory
-        sys.stdout = self._stdout
+from contextlib import redirect_stdout
 
 
 class InteractiveConsolePlugin(Plugin):
@@ -29,43 +17,37 @@ class InteractiveConsolePlugin(Plugin):
         self.namespace = namespace
 
         self.interactive_console = None
-        self.interpreter_line = None
-        self.interpreter_output = None
+        self.dock_widget = None
+        self.console_widget = None
 
     def install_gui(self):
         super().install_gui()
 
-        self.interactive_console = InteractiveConsole(self.namespace)
+        self.console_widget = InteractiveConsoleWidget()
+        self.console_widget.command_entered.connect(self.on_command_entered)
 
-        dock_widget = QDockWidget('Interactive Console')
+        self.interactive_console = InteractiveConsole(self.namespace, self.console_widget.append_output)
 
-        self.interpreter_line = QLineEdit('print("Hello")')
-        self.interpreter_line.returnPressed.connect(self.on_interpreter_line_return_pressed)
-        self.interpreter_output = QTextEdit()
+        self.dock_widget = QDockWidget('Interactive Console')
+        self.dock_widget.setWidget(self.console_widget)
+        self.dock_widget.hide()
+        QShortcut(Qt.CTRL + Qt.Key_Greater, self.main_window_plugin.main_window, self.on_shortcut_activated)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.interpreter_output)
-        layout.addWidget(self.interpreter_line)
+        self.main_window_plugin.main_window.addDockWidget(Qt.BottomDockWidgetArea, self.dock_widget)
 
-        interpreter_widget = QWidget()
-        interpreter_widget.setLayout(layout)
+    def on_command_entered(self, command_text):
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            more_input_required = self.interactive_console.push(command_text)
 
-        dock_widget.setWidget(interpreter_widget)
+        output_text = stdout.getvalue()
+        if output_text.endswith('\n'):  # enter was redirected to stdout too, so we need to remove it
+            output_text = output_text[:-1]
+        if output_text:
+            self.console_widget.append_output(output_text)
 
-        self.main_window_plugin.main_window.addDockWidget(Qt.BottomDockWidgetArea, dock_widget)
+        self.console_widget.set_continue_input_prompt(more_input_required)
 
-    def on_interpreter_line_return_pressed(self):
-        '''
-        with Capturing() as output:
-            result = self.interactive_console.push(self.interpreter_line.text())
-        print('myOut:', output)
-        '''
-
-        fff = io.StringIO()
-        with redirect_stdout(fff):
-            result = self.interactive_console.push(self.interpreter_line.text())
-        print('---interpreter result', result)
-        out = fff.getvalue()
-        print('out:', out)
-        if out:
-            self.interpreter_output.append(out)
+    def on_shortcut_activated(self):
+        self.dock_widget.show()
+        self.console_widget.focus_command_line()
