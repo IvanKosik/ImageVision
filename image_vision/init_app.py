@@ -2,6 +2,7 @@ from core.plugin_manager import PluginManager
 from plugins.interactive_console.interactive_console_plugin import InteractiveConsolePlugin
 from plugins.main_window.main_window_plugin import MainWindowPlugin
 from plugins.dicom_loader.dicom_loader_plugin import DicomLoaderPlugin
+from plugins.image_loaders.nifti.nifti_image_loader_plugin import NiftiImageLoaderPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
 from plugins.image_viewer.colormap_table_widget.colormap_table_widget_plugin import ColormapTableWidgetPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
@@ -19,6 +20,7 @@ main_window_plugin = MainWindowPlugin()
 image_viewer_plugin = ImageViewerPlugin(main_window_plugin)
 colormap_table_widget_plugin = ColormapTableWidgetPlugin(main_window_plugin, image_viewer_plugin)
 dicom_loader_plugin = DicomLoaderPlugin(main_window_plugin)
+nifti_loader_plugin = NiftiImageLoaderPlugin()
 ann_prediction_plugin = AnnPredictionToolPlugin(image_viewer_plugin, main_window_plugin)
 
 smart_brush_plugin = SmartBrushSegmentationToolPlugin(image_viewer_plugin, main_window_plugin)
