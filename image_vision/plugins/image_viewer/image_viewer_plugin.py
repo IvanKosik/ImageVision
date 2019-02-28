@@ -7,27 +7,19 @@ from PyQt5.QtCore import Qt
 
 
 class ImageViewerPlugin(Plugin):
-    def __init__(self, main_window_plugin):
+    def __init__(self, main_window_plugin: MainWindowPlugin):
         super().__init__()
 
-        self.main_window_plugin = main_window_plugin
+        self.main_window = main_window_plugin.main_window
 
-        self.image_viewer = None
+        self.image_viewer = ImageViewer(self.main_window)
 
         self.toggle_mask_visibility_action = None
 
-    def install_core(self):
-        super().install_core()
+    def _install(self):
+        self.main_window.setCentralWidget(self.image_viewer)
 
-        self.image_viewer = ImageViewer(self.main_window_plugin.main_window)
-
-    def install_gui(self):
-        super().install_gui()
-
-        main_window = self.main_window_plugin.main_window
-        main_window.setCentralWidget(self.image_viewer)
-
-        view_menu = main_window.menuBar().addMenu('View')
+        view_menu = self.main_window.menuBar().addMenu('View')
         self.toggle_mask_visibility_action = view_menu.addAction(
             'Show/Hide Mask', self.image_viewer.toogle_mask_visibility, Qt.CTRL + Qt.Key_M)
 

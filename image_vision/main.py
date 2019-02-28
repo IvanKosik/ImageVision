@@ -5,11 +5,11 @@ import sys
 def init_app():
     with open('init_app.py', 'r') as script_file:
         script = script_file.read()
-        exec(script, globals())
+        exec(script, {}, {})
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
     init_app()
 
 
@@ -43,4 +43,4 @@ if __name__ == '__main__':
     imsave('D:/Projects/Temp/UlaAdrDevelopment/1.png', dcm.pixel_array)
     '''
 
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())

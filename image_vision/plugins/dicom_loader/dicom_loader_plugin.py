@@ -10,24 +10,18 @@ from pathlib import Path
 
 
 class DicomLoaderPlugin(Plugin):
-    def __init__(self, main_window_plugin):
+    def __init__(self, main_window_plugin: MainWindowPlugin):
         super().__init__()
 
         self.main_window_plugin = main_window_plugin
 
-        self.dicom_loader = None
+        self.dicom_loader = DicomLoader()
         # self.image_viewer = None
 
         self.dicom_preview = None
 
-    def install_core(self):
-        super().install_core()
-
-        self.dicom_loader = DicomLoader()
+    def _install(self):
         # self.image_viewer = plugin_manager.plugin(ImageViewer.name()).image_viewer
-
-    def install_gui(self):
-        super().install_gui()
 
         main_window = self.main_window_plugin.main_window
 

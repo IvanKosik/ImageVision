@@ -6,10 +6,7 @@ class MainWindowPlugin(Plugin):
     def __init__(self):
         super().__init__()
 
-        self.main_window = None
-
-    def install_gui(self):
-        super().install_gui()
-
         self.main_window = MainWindow()
+
+    def _install(self):
         self.main_window.show()

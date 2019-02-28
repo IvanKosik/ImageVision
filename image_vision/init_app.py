@@ -1,3 +1,4 @@
+from gui_application import GuiApplication
 from core.plugin_manager import PluginManager
 from plugins.interactive_console.interactive_console_plugin import InteractiveConsolePlugin
 from plugins.main_window.main_window_plugin import MainWindowPlugin
@@ -14,8 +15,25 @@ from plugins.image_viewer.exclusive_tool_manager.image_viewers_exclusive_tool_ma
 from plugins.image_viewer.tools.ann_prediction.ann_prediction_tool_plugin import AnnPredictionToolPlugin
 from plugins.image_viewer.tools.thresholding.thresholding_tool_plugin import ThresholdingToolPlugin
 
+import sys
+
+
 print('init_app')
 
+plugins = [ImageViewerPlugin, DicomLoaderPlugin]
+app = GuiApplication(sys.argv)
+app.install_plugins(plugins)
+
+
+# image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
+app.plugin('ImageViewerPlugin').image_viewer.drop_file('tests/ct.png')
+# image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
+
+
+sys.exit(app.exec_())
+
+
+'''
 main_window_plugin = MainWindowPlugin()
 image_viewer_plugin = ImageViewerPlugin(main_window_plugin)
 colormap_table_widget_plugin = ColormapTableWidgetPlugin(main_window_plugin, image_viewer_plugin)
@@ -44,7 +62,4 @@ for plugin in plugins:
     plugin_manager.install_plugin(plugin)
 
 smart_brush_plugin.activate_tool()
-
-# image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
-image_viewer_plugin.image_viewer.drop_file('tests/ct.png')
-# image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
+'''
