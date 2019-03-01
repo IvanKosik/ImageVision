@@ -13,21 +13,21 @@ class DicomLoaderPlugin(Plugin):
     def __init__(self, main_window_plugin: MainWindowPlugin):
         super().__init__()
 
-        self.main_window_plugin = main_window_plugin
+        self.main_window = main_window_plugin.main_window
 
         self.dicom_loader = DicomLoader()
-        # self.image_viewer = None
 
         self.dicom_preview = None
 
+        self.file_menu = self.main_window.menuBar().addMenu('File')
+        self.load_dicom_action = None
+
     def _install(self):
-        # self.image_viewer = plugin_manager.plugin(ImageViewer.name()).image_viewer
-
-        main_window = self.main_window_plugin.main_window
-
-        file_menu = main_window.menuBar().addMenu('File')
-        load_dicom_action = file_menu.addAction(
+        self.load_dicom_action = self.file_menu.addAction(
             'Load DICOM', self.load_dicom, Qt.CTRL + Qt.Key_D)
+
+    def _remove(self):
+        self.file_menu.removeAction(self.load_dicom_action)
 
     def load_dicom(self):
         dicom_path = Path(QFileDialog.getExistingDirectory(caption=self.tr('Select DICOM Directory')))

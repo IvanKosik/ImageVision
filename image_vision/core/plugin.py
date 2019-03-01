@@ -5,24 +5,41 @@ from inspect import signature
 
 class Plugin(QObject):
     installed = pyqtSignal()
+    removed = pyqtSignal()
 
     def __init__(self):
+        self._installed = False
+
         super().__init__()
-        print('init', self.name(), 'plugin')
+        self.print_action('init')
+
+    def __del__(self):
+        self.print_action('del')
 
     def install(self):
-        print('install', self.name(), 'plugin')
+        if self._installed:
+            return
+
+        self.print_action('install')
         self._install()
+        self._installed = True
         self.installed.emit()
 
     def _install(self):
         pass
 
     def remove(self):
-        pass
+        if self._installed:
+            self.print_action('remove')
+            self._remove()
+            self._installed = False
+            self.removed.emit()
 
     def _remove(self):
         pass
+
+    def print_action(self, action_str):
+        print('{} {} plugin'.format(action_str, self.name()))
 
     @classmethod
     def required_plugin_classes(cls):

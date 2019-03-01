@@ -20,8 +20,9 @@ import sys
 
 print('init_app')
 
-plugins = [ImageViewerPlugin, DicomLoaderPlugin]
+plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin]
 app = GuiApplication(sys.argv)
+InteractiveConsolePlugin.locals = {'app': app}
 app.install_plugins(plugins)
 
 

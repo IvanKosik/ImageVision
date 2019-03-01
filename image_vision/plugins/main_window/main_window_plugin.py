@@ -10,3 +10,6 @@ class MainWindowPlugin(Plugin):
 
     def _install(self):
         self.main_window.show()
+
+    def _remove(self):
+        self.main_window.hide()
