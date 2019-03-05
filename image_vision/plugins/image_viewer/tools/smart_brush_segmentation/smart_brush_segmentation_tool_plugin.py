@@ -1,11 +1,13 @@
 from plugins.image_viewer.tools.image_viewer_tool_plugin import ImageViewerToolPlugin
+from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
+from plugins.main_window.main_window_plugin import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDockWidget, QWidget, QFormLayout, QCheckBox, QGroupBox, QRadioButton, QVBoxLayout
 
 
 class SmartBrushSegmentationToolPlugin(ImageViewerToolPlugin):
-    def __init__(self, image_viewer_plugin, main_window_plugin):
+    def __init__(self, image_viewer_plugin: ImageViewerPlugin, main_window_plugin: MainWindowPlugin):
         super().__init__(image_viewer_plugin, main_window_plugin,
                          'plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool',
                          'SmartBrushSegmentationTool', 'Smart Brush', Qt.CTRL + Qt.Key_1)
@@ -20,7 +22,7 @@ class SmartBrushSegmentationToolPlugin(ImageViewerToolPlugin):
             self.tool_settings_widget = self.create_tool_settings_widget()
             settings_dock_widget.setWidget(self.tool_settings_widget)
 
-            self.main_window_plugin.main_window.addDockWidget(Qt.LeftDockWidgetArea, settings_dock_widget)
+            self.main_window.addDockWidget(Qt.LeftDockWidgetArea, settings_dock_widget)
 
     def create_tool_settings_widget(self):
         layout = QVBoxLayout()

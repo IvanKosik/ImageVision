@@ -4,7 +4,7 @@ from core.colormap import Colormap
 from core import image_utils
 from core import settings
 
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt, pyqtSignal
 from skimage.io import imread, imsave
@@ -12,13 +12,38 @@ import numpy as np
 import os
 
 
-class ImageViewer(QLabel):
+class GraphicsView(QGraphicsView):
+    def __init__(self, scene):
+        super().__init__(scene)
+
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
+        self.zoom_in_factor = 1.25
+        self.zoom_out_factor = 1 / self.zoom_in_factor
+
+    def wheelEvent(self, event):
+        zoom_factor = self.zoom_in_factor if event.angleDelta().y() > 0 else self.zoom_out_factor
+        self.scale(zoom_factor, zoom_factor)
+
+
+class ImageViewer(GraphicsView):
     before_image_changed = pyqtSignal()
     image_changed = pyqtSignal()
     colormap_active_class_changed = pyqtSignal(int)
 
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
+
+
+        scene = QGraphicsScene()
+        # scene.setSceneRect(-300, -300, 600, 600)
+
+        self.pixmap_item = QGraphicsPixmapItem()
+        self.pixmap_item.setTransformationMode(Qt.SmoothTransformation)
+        scene.addItem(self.pixmap_item)
+        # pixmap_item.setPos(0, 0)
+
+        self.setScene(scene)
 
         self.main_window = main_window  #%! Temp
 
@@ -36,10 +61,10 @@ class ImageViewer(QLabel):
 
         self.combined_qimage = None
         self.scaled_combined_qimage = None
-        self.scale = None
+        self.image_scale = None
 
         self.setMinimumSize(100, 100)
-        self.setAlignment(Qt.AlignTop)
+        # self.setAlignment(Qt.AlignTop)
 
         self.setAcceptDrops(True)
 
@@ -60,7 +85,7 @@ class ImageViewer(QLabel):
         # self.tool_interactor = GrabCutBrushToolInteractor(self)
         # self.installEventFilter(self.tool_interactor)
 
-        self.setFocusPolicy(Qt.StrongFocus)  # for key events
+        # self.setFocusPolicy(Qt.StrongFocus)  # for key events
 
     def add_layer(self, name, image: Image = None):
         layer = ImageLayer(name, image)
@@ -88,10 +113,17 @@ class ImageViewer(QLabel):
         return self.image() is not None
 
     def is_over_image(self, pos):
-        return pos.x() <= self.scaled_combined_qimage.width() and pos.y() <= self.scaled_combined_qimage.height()
+        pos = self.mapToScene(pos)
+        return 0 <= pos.x() <= self.scaled_combined_qimage.width() \
+            and 0 <= pos.y() <= self.scaled_combined_qimage.height()
+        # return pos.x() <= self.scaled_combined_qimage.width() and pos.y() <= self.scaled_combined_qimage.height()
 
     def pos_to_image_coords(self, pos):
-        return [round(pos.y() / self.scale), round(pos.x() / self.scale)]
+        # pixmap_pos = self.pixmap_item.mapFromScene(self.mapToScene(pos))
+        # return [round(pixmap_pos.y()), round(pixmap_pos.x())]
+
+        pos = self.mapToScene(pos)
+        return [round(pos.y()), round(pos.x())]
 
     def dragEnterEvent(self, e):
         path = e.mimeData().urls()[0].toLocalFile()
@@ -239,9 +271,10 @@ class ImageViewer(QLabel):
 
         self.scaled_combined_qimage = self.combined_qimage.scaled(self.width(), self.height(),
                                                                   Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.scale = self.scaled_combined_qimage.width() / self.combined_qimage.width()
+        self.image_scale = self.scaled_combined_qimage.width() / self.combined_qimage.width()
 
-        self.setPixmap(QPixmap(self.scaled_combined_qimage))
+        # self.pixmap_item.setPixmap(QPixmap(self.scaled_combined_qimage))
+        self.pixmap_item.setPixmap(QPixmap(self.combined_qimage))
 
     def resizeEvent(self, e):
         self.update_scaled_combined_image()

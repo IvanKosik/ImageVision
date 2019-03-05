@@ -40,7 +40,7 @@ class ImageViewerTool(QObject):
         self.recreate_tool_mask()
         self.viewer.update_scaled_combined_image()
 
-        self.viewer.installEventFilter(self)
+        self.viewer.viewport().installEventFilter(self)
 
         self.viewer.before_image_changed.connect(self.on_before_viewer_image_changed)
         self.viewer.image_changed.connect(self.on_viewer_image_changed)

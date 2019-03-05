@@ -20,7 +20,8 @@ import sys
 
 print('init_app')
 
-plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin]
+#plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin, SmartBrushSegmentationToolPlugin]
+plugins = [SmartBrushSegmentationToolPlugin]
 app = GuiApplication(sys.argv)
 InteractiveConsolePlugin.locals = {'app': app}
 app.install_plugins(plugins)
@@ -30,6 +31,7 @@ app.install_plugins(plugins)
 app.plugin('ImageViewerPlugin').image_viewer.drop_file('tests/ct.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
 
+app.plugin(SmartBrushSegmentationToolPlugin).activate_tool()
 
 sys.exit(app.exec_())
 
