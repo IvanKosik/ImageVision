@@ -31,7 +31,7 @@ app.install_plugins(plugins)
 app.plugin('ImageViewerPlugin').image_viewer.drop_file('tests/ct.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
 
-app.plugin(SmartBrushSegmentationToolPlugin).activate_tool()
+# app.plugin(SmartBrushSegmentationToolPlugin).activate_tool()
 
 sys.exit(app.exec_())
 

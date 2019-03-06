@@ -58,7 +58,7 @@ class ImageViewerTool(QObject):
         self.viewer.image_changed.disconnect(self.on_viewer_image_changed)
         self.viewer.before_image_changed.disconnect(self.on_before_viewer_image_changed)
 
-        self.viewer.removeEventFilter(self)
+        self.viewer.viewport().removeEventFilter(self)
 
         self.tool_mask = None
         self.viewer.remove_layer(self.tool_mask_layer)

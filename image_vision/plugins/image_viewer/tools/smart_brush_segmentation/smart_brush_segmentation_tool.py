@@ -43,21 +43,18 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         self.viewer.setMouseTracking(False)
 
     def eventFilter(self, watched_obj, e):
-        print('event smart:', e.type())
         if e.type() == QEvent.MouseButtonPress:
             self.on_mouse_pressed(e)
             return True
         elif e.type() == QEvent.MouseMove:
-            print('eventFilter MouseMove')
             self.on_mouse_moved(e)
-            return True
+            return False
         elif e.type() == QEvent.MouseButtonRelease:
             self.on_mouse_released(e)
             return True
         elif e.type() == QEvent.Wheel and e.modifiers() == Qt.ControlModifier:
             self.on_cntrl_wheel_scrolled(e)
             return True
-        # elif e.type() == QGraphicsSceneMouseEvent
         else:
             return super().eventFilter(watched_obj, e)
 
@@ -77,7 +74,6 @@ class SmartBrushSegmentationTool(ImageViewerTool):
         self.draw_brush_event(e)
 
     def on_mouse_moved(self, e):
-        print('on_mouse_moved')
         self.draw_brush_event(e)
 
     def on_mouse_released(self, e):
@@ -89,7 +85,6 @@ class SmartBrushSegmentationTool(ImageViewerTool):
 
         image_coords = self.viewer.pos_to_image_coords(e.pos())
         self.update_mode(e)
-        print('Draw_brush_event', image_coords[0], image_coords[1])
         self.draw_brush(image_coords[0], image_coords[1])
         self.viewer.update_scaled_combined_image()
 

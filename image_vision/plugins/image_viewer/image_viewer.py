@@ -4,26 +4,98 @@ from core.colormap import Colormap
 from core import image_utils
 from core import settings
 
-from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
-from PyQt5.QtGui import QPixmap, QPainter
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsEllipseItem
+from PyQt5.QtGui import QPixmap, QPainter, QMouseEvent, QBrush, QShowEvent
+from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QTimeLine, QPointF, QRectF, QObject, QEvent, QSizeF
 from skimage.io import imread, imsave
 import numpy as np
 import os
+
+from functools import partial
+
+
+class _Zoom:  # TODO: Use Python 3.7 dataclasses
+    def __init__(self, pos, factor):
+        self.pos = pos
+        self.factor = factor
+
+
+class _ZoomTimeLine(QTimeLine):
+    def __init__(self, duration: int = 1000, parent: QObject = None):
+        super().__init__(duration, parent)
+
+        self.finished.connect(self.deleteLater)
+
+
+class _ViewSmoothZoom(QObject):
+    zoom_finished = pyqtSignal()
+
+    def __init__(self, view, parent: QObject = None):
+        super().__init__(parent)
+
+        self.view = view
+
+        self.zoom_in_factor = 0.25
+        self.zoom_out_factor = -self.zoom_in_factor
+
+    def eventFilter(self, watched_obj, event):
+        if event.type() == QEvent.Wheel:
+            self.on_wheel_scrolled(event)
+            return True
+        else:
+            return super().eventFilter(watched_obj, event)
+
+    def on_wheel_scrolled(self, event):
+        zoom_factor = self.zoom_in_factor if event.angleDelta().y() > 0 else self.zoom_out_factor
+        SMOOTH_ZOOM_DURATION = 200
+        SMOOTH_ZOOM_UPDATE_INTERVAL = 20
+        zoom_factor = 1 + zoom_factor / (SMOOTH_ZOOM_DURATION / SMOOTH_ZOOM_UPDATE_INTERVAL)
+        zoom = _Zoom(event.pos(), zoom_factor)
+        zoom_time_line = _ZoomTimeLine(SMOOTH_ZOOM_DURATION, self)
+        zoom_time_line.setUpdateInterval(SMOOTH_ZOOM_UPDATE_INTERVAL)
+        zoom_time_line.valueChanged.connect(partial(self.zoom_view, zoom))
+        zoom_time_line.finished.connect(self.zoom_finished)
+        zoom_time_line.start()
+
+    def zoom_view(self, zoom):
+        old_pos = self.view.mapToScene(zoom.pos)
+        self.view.scale(zoom.factor, zoom.factor)
+        new_pos = self.view.mapToScene(zoom.pos)
+
+        # Move the scene's view to old position
+        delta = new_pos - old_pos
+        self.view.translate(delta.x(), delta.y())
 
 
 class GraphicsView(QGraphicsView):
     def __init__(self, scene):
         super().__init__(scene)
 
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
+        self.scene_center = None
+        view_smooth_zoom = _ViewSmoothZoom(self, self)
+        view_smooth_zoom.zoom_finished.connect(self.on_zoom_finished)
+        self.viewport().installEventFilter(view_smooth_zoom)
 
-        self.zoom_in_factor = 1.25
-        self.zoom_out_factor = 1 / self.zoom_in_factor
+        scene = QGraphicsScene()
+        # scene.setSceneRect(-300, -300, 600, 600)
 
-    def wheelEvent(self, event):
-        zoom_factor = self.zoom_in_factor if event.angleDelta().y() > 0 else self.zoom_out_factor
-        self.scale(zoom_factor, zoom_factor)
+        self.pixmap_item = QGraphicsPixmapItem()
+        self.pixmap_item.setTransformationMode(Qt.SmoothTransformation)
+        scene.addItem(self.pixmap_item)
+
+        self.setScene(scene)
+
+        # self.setBackgroundBrush(QBrush(Qt.black))
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+    def mousePressEvent(self, event: QMouseEvent):
+        pos = self.pixmap_item.mapFromScene(self.mapToScene(event.pos()))
+        item = QGraphicsEllipseItem(pos.x() - 5, pos.y() - 5, 10, 10, self.pixmap_item)
+        # self.scene().addItem(QGraphicsEllipseItem(pos.x() - 5, pos.y() - 5, 10, 10, self.pixmap_item))
 
 
 class ImageViewer(GraphicsView):
@@ -33,17 +105,6 @@ class ImageViewer(GraphicsView):
 
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
-
-
-        scene = QGraphicsScene()
-        # scene.setSceneRect(-300, -300, 600, 600)
-
-        self.pixmap_item = QGraphicsPixmapItem()
-        self.pixmap_item.setTransformationMode(Qt.SmoothTransformation)
-        scene.addItem(self.pixmap_item)
-        # pixmap_item.setPos(0, 0)
-
-        self.setScene(scene)
 
         self.main_window = main_window  #%! Temp
 
@@ -61,7 +122,7 @@ class ImageViewer(GraphicsView):
 
         self.combined_qimage = None
         self.scaled_combined_qimage = None
-        self.image_scale = None
+        # self.image_scale = None
 
         self.setMinimumSize(100, 100)
         # self.setAlignment(Qt.AlignTop)
@@ -250,9 +311,21 @@ class ImageViewer(GraphicsView):
             mask = np.full((self.image().data.shape[0], self.image().data.shape[1]), settings.NO_MASK_CLASS, np.uint8)
         self.mask_layer.image = Image(mask)
         self.initial_mask = Image(np.copy(mask))
-        self.image_changed.emit()
 
         self.update_scaled_combined_image()
+        self.center_image()
+        self.image_changed.emit()
+
+    def center_image(self):
+        pixmap_size = self.pixmap_item.boundingRect().size()
+        margins_size = pixmap_size
+        self.setSceneRect(QRectF(self.pixmap_item.pos() - QPointF(margins_size.width(), margins_size.height()),
+                                 2 * margins_size + pixmap_size))
+        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+        # self.centerOn(self.pixmap_item)
+
+    def showEvent(self, event: QShowEvent):
+        self.center_image()
 
     def update_scaled_combined_image(self):
         if not self.has_image():
@@ -269,13 +342,25 @@ class ImageViewer(GraphicsView):
                     painter.drawImage(0, 0, image_utils.numpy_rgba_image_to_qimage(rgba_layer_image_data))
             painter.end()
 
-        self.scaled_combined_qimage = self.combined_qimage.scaled(self.width(), self.height(),
-                                                                  Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.image_scale = self.scaled_combined_qimage.width() / self.combined_qimage.width()
+        # self.scaled_combined_qimage = self.combined_qimage.scaled(self.width(), self.height(),
+        #                                                           Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # self.image_scale = self.scaled_combined_qimage.width() / self.combined_qimage.width()
 
         # self.pixmap_item.setPixmap(QPixmap(self.scaled_combined_qimage))
         self.pixmap_item.setPixmap(QPixmap(self.combined_qimage))
 
+    def on_zoom_finished(self):
+        self.scene_center = self.mapToScene(self.viewport().rect().center())
+
     def resizeEvent(self, e):
-        self.update_scaled_combined_image()
+        '''
+        if not self.scene_center:
+            self.on_zoom_finished()
+
+        print('RESIZE', self.scene_center)
+
+        self.centerOn(self.scene_center)
+        '''
+        self.center_image()
+
         super().resizeEvent(e)
