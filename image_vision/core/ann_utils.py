@@ -14,7 +14,7 @@ def predict_on_nifti_model_slices(nifti_model_path: Path, keras_model_path: Path
         print('Keras model loading exception: {}\n{}'.format(type(exception).__name__, exception))
         return
 
-    model = nifti_model.get_fdata()
+    model = np.asarray(nifti_model.dataobj)
     predicted_model = np.zeros_like(model, np.uint8)
     for slice_number in range(model.shape[2]):
         cur_slice = model[:, :, slice_number]
@@ -29,7 +29,7 @@ def predict_on_image(keras_model, image):
     resized_rect_image = image_utils.resized_padded_to_rect_image(image, 512)  #! 512 get from model layers input shape
 
     images = np.zeros((1, 512, 512, 1), dtype=np.float32)
-    images[0, :, :, 0] = resized_rect_image / resized_rect_image.max()
+    images[0, :, :, 0] = (resized_rect_image - resized_rect_image.min()) / resized_rect_image.max()
 
     try:
         predictions = keras_model.predict(images)
