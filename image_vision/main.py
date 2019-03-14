@@ -10,7 +10,26 @@ def init_app():
 
 if __name__ == '__main__':
     # app = QApplication(sys.argv)
-    init_app()
+    # init_app()
+
+
+
+    # from core.image_format_loaders.image_format_loader import NiftiImageFormatLoader
+    # l = NiftiImageFormatLoader()
+    # # NiftiImageFormatLoader._FORMATS = ('m', 'a')
+    # # l.formats = ('2', '3')
+    # print(l.formats)
+    # print(NiftiImageFormatLoader.formats)
+
+    from plugins.image_format_loaders.image_format_loader import ImageFormatLoaderRegistry, ImageFormatLoader
+    from plugins.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
+        # without this import registry has nothing
+
+    # im_reg = ImageFormatLoader()
+    print('1:', ImageFormatLoader.registry())
+    print('2:', ImageFormatLoaderRegistry.registry())
+
+
 
 
     '''
