@@ -127,7 +127,7 @@ class ImageViewer(GraphicsView):
         self.setMinimumSize(100, 100)
         # self.setAlignment(Qt.AlignTop)
 
-        self.setAcceptDrops(True)
+        # self.setAcceptDrops(True)
 
         # self.view_mode = ViewMode.FILE
         self.image_path = '' #tests/start_image.png'
@@ -186,7 +186,9 @@ class ImageViewer(GraphicsView):
         pos = self.mapToScene(pos)
         return [round(pos.y()), round(pos.x())]
 
+    '''
     def dragEnterEvent(self, e):
+        print('ddd')
         path = e.mimeData().urls()[0].toLocalFile()
         if not os.path.exists(path):
             e.ignore()
@@ -200,6 +202,7 @@ class ImageViewer(GraphicsView):
     def dropEvent(self, e):
         path = e.mimeData().urls()[0].toLocalFile()
         self.drop_file(path)
+    '''
 
     def drop_file(self, path):
         self.actions_before_image_changed()

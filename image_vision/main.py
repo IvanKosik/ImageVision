@@ -1,7 +1,3 @@
-from PyQt5.QtWidgets import QApplication
-import sys
-
-
 def init_app():
     with open('init_app.py', 'r') as script_file:
         script = script_file.read()
@@ -10,24 +6,30 @@ def init_app():
 
 if __name__ == '__main__':
     # app = QApplication(sys.argv)
-    # init_app()
+    init_app()
 
 
 
-    # from core.image_format_loaders.image_format_loader import NiftiImageFormatLoader
+    # from plugins.image_loading.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
+    # from plugins.image_loading.image_format_loaders.simple.simple_image_format_loader import SimpleImageFormatLoader
     # l = NiftiImageFormatLoader()
+    # s = SimpleImageFormatLoader()
     # # NiftiImageFormatLoader._FORMATS = ('m', 'a')
     # # l.formats = ('2', '3')
     # print(l.formats)
     # print(NiftiImageFormatLoader.formats)
+    # print(s.formats)
+    # print(SimpleImageFormatLoader.formats)
 
-    from plugins.image_format_loaders.image_format_loader import ImageFormatLoaderRegistry, ImageFormatLoader
-    from plugins.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
+
+
+    # from plugins.image_format_loaders.image_format_loader import ImageFormatLoaderRegistry, ImageFormatLoader
+    # from plugins.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
         # without this import registry has nothing
 
     # im_reg = ImageFormatLoader()
-    print('1:', ImageFormatLoader.registry())
-    print('2:', ImageFormatLoaderRegistry.registry())
+    # print('1:', ImageFormatLoader.registry())
+    # print('2:', ImageFormatLoaderRegistry.registry())
 
 
 

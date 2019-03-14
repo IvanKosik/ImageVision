@@ -1,19 +1,11 @@
 from gui_application import GuiApplication
-from core.plugin_manager import PluginManager
 from plugins.interactive_console.interactive_console_plugin import InteractiveConsolePlugin
-from plugins.main_window.main_window_plugin import MainWindowPlugin
-from plugins.dicom_loader.dicom_loader_plugin import DicomLoaderPlugin
-from plugins.image_format_loaders.nifti.nifti_image_format_loader_plugin import NiftiImageLoaderPlugin
-from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
-from plugins.image_viewer.colormap_table_widget.colormap_table_widget_plugin import ColormapTableWidgetPlugin
 from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
-from plugins.image_viewer.tools.cluster_segmentation.cluster_segmentation_tool_plugin import ClusterSegmentationToolPlugin
-from plugins.image_viewer.tools.polygon_segmentation.polygon_segmentation_tool_plugin import PolygonSegmentationToolPlugin
-from plugins.image_viewer.tools.crop.crop_tool_plugin import CropToolPlugin
-from plugins.image_viewer.tools.grab_cut_segmentation.grab_cut_segmentation_tool_plugin import GrabCutSegmentationToolPlugin
-from plugins.image_viewer.exclusive_tool_manager.image_viewers_exclusive_tool_manager_plugin import ImageViewersExclusiveToolManagerPlugin
-from plugins.image_viewer.tools.ann_prediction.ann_prediction_tool_plugin import AnnPredictionToolPlugin
-from plugins.image_viewer.tools.thresholding.thresholding_tool_plugin import ThresholdingToolPlugin
+from plugins.image_loading.image_format_loaders.simple.simple_image_format_loader_plugin import SimpleImageFormatLoaderPlugin
+from plugins.image_loading.image_format_loaders.nifti.nifti_image_format_loader_plugin import NiftiImageFormatLoaderPlugin
+from plugins.image_loading.image_loader_plugin import ImageLoaderPlugin
+from plugins.image_viewer.drop.image_viewer_drop_plugin import ImageViewerDropPlugin
+
 
 import sys
 
@@ -21,11 +13,14 @@ import sys
 print('init_app')
 
 #plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin, SmartBrushSegmentationToolPlugin]
-plugins = [SmartBrushSegmentationToolPlugin]
+plugins = [SmartBrushSegmentationToolPlugin, ImageLoaderPlugin, SimpleImageFormatLoaderPlugin, NiftiImageFormatLoaderPlugin, ImageViewerDropPlugin]
 app = GuiApplication(sys.argv)
 InteractiveConsolePlugin.locals = {'app': app}
 app.install_plugins(plugins)
 
+
+from pathlib import Path
+app.plugin(ImageLoaderPlugin).image_loader.load_image(Path('aaa.jpg'))
 
 # image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
 app.plugin('ImageViewerPlugin').image_viewer.drop_file('tests/ct.png')
