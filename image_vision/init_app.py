@@ -1,29 +1,27 @@
 from gui_application import GuiApplication
-from plugins.interactive_console.interactive_console_plugin import InteractiveConsolePlugin
-from plugins.image_viewer.tools.smart_brush_segmentation.smart_brush_segmentation_tool_plugin import SmartBrushSegmentationToolPlugin
-from plugins.image_loading.image_format_loaders.simple.simple_image_format_loader_plugin import SimpleImageFormatLoaderPlugin
-from plugins.image_loading.image_format_loaders.nifti.nifti_image_format_loader_plugin import NiftiImageFormatLoaderPlugin
-from plugins.image_loading.image_loader_plugin import ImageLoaderPlugin
-from plugins.image_viewer.drop.image_viewer_drop_plugin import ImageViewerDropPlugin
-
+from plugins.mdi import MdiAreaFileDropperPlugin
+from plugins.loaders.image import SimpleImageFileLoaderPlugin
+from plugins.visualizers.image import ImageDataVisualizerPlugin
 
 import sys
 
 
 print('init_app')
 
+
 #plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin, SmartBrushSegmentationToolPlugin]
-plugins = [SmartBrushSegmentationToolPlugin, ImageLoaderPlugin, SimpleImageFormatLoaderPlugin, NiftiImageFormatLoaderPlugin, ImageViewerDropPlugin]
+#plugins = [SmartBrushSegmentationToolPlugin, ImageLoaderPlugin, SimpleImageFormatLoaderPlugin, NiftiImageFormatLoaderPlugin, ImageViewerDropPlugin]
+plugins = [MdiAreaFileDropperPlugin, SimpleImageFileLoaderPlugin, ImageDataVisualizerPlugin]
 app = GuiApplication(sys.argv)
-InteractiveConsolePlugin.locals = {'app': app}
+# InteractiveConsolePlugin.locals = {'app': app}
 app.install_plugins(plugins)
 
 
-from pathlib import Path
-app.plugin(ImageLoaderPlugin).image_loader.load_image(Path('aaa.jpg'))
+# from pathlib import Path
+# app.plugin(ImageLoaderPlugin).image_loader.load_image(Path('aaa.jpg'))
 
 # image_viewer_plugin.image_viewer.drop_file('tests/start_image.png')
-app.plugin('ImageViewerPlugin').image_viewer.drop_file('tests/ct.png')
+# app.plugin('ImageViewerPlugin').image_viewer.drop_file('images/ct.png')
 # image_viewer_plugin.image_viewer.drop_file('D:/Projects/Temp/ImReg/Dicoms/Test/O9-P_20111116_001_002_t1_se_tra.hdr')
 
 # app.plugin(SmartBrushSegmentationToolPlugin).activate_tool()

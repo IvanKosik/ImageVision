@@ -1,8 +1,8 @@
-from PyQt5.QtCore import QObject
+from core.data import Data
 
 
-class Image(QObject):
-    def __init__(self, data=None):
+class Image(Data):
+    def __init__(self, array=None):
         super().__init__()
 
-        self.data = data
+        self.array = array

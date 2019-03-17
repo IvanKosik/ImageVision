@@ -1,6 +1,6 @@
 from plugins.image_viewer.tools.image_viewer_tool_plugin import ImageViewerToolPlugin
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
-from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.window.main import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDockWidget, QWidget, QFormLayout, QCheckBox, QGroupBox, QRadioButton, QVBoxLayout

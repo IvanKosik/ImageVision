@@ -10,8 +10,8 @@ if __name__ == '__main__':
 
 
 
-    # from plugins.image_loading.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
-    # from plugins.image_loading.image_format_loaders.simple.simple_image_format_loader import SimpleImageFormatLoader
+    # from plugins.loaders.image.nifti.nifti_image_format_loader import NiftiImageFormatLoader
+    # from plugins.loaders.image.file.simple_image_format_loader import SimpleImageFormatLoader
     # l = NiftiImageFormatLoader()
     # s = SimpleImageFormatLoader()
     # # NiftiImageFormatLoader._FORMATS = ('m', 'a')
@@ -23,8 +23,8 @@ if __name__ == '__main__':
 
 
 
-    # from plugins.image_format_loaders.image_format_loader import ImageFormatLoaderRegistry, ImageFormatLoader
-    # from plugins.image_format_loaders.nifti.nifti_image_format_loader import NiftiImageFormatLoader
+    # from plugins.image.image_format_loader import ImageFormatLoaderRegistry, ImageFormatLoader
+    # from plugins.image.nifti.nifti_image_format_loader import NiftiImageFormatLoader
         # without this import registry has nothing
 
     # im_reg = ImageFormatLoader()

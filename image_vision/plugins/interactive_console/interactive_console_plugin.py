@@ -1,5 +1,5 @@
 from core.plugin import Plugin
-from ..main_window.main_window_plugin import MainWindowPlugin
+from ..window.main import MainWindowPlugin
 from .interactive_console import InteractiveConsole
 from .interactive_console_widget import InteractiveConsoleWidget
 

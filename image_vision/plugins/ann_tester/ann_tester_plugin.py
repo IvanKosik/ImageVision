@@ -1,6 +1,6 @@
 from core.plugin import Plugin
 from plugins.ann_tester.ann_tester import AnnTester
-from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.window.main import MainWindowPlugin
 
 
 class AnnTesterPlugin(Plugin):

@@ -1,7 +1,7 @@
 from core.plugin import Plugin
 from plugins.dicom_loader.dicom_loader import DicomLoader
 from plugins.dicom_loader.dicom_preview import DicomPreview
-from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.window.main import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog

@@ -2,7 +2,7 @@ from core.plugin import Plugin
 
 from .image_viewer_drop import ImageViewerDrop
 from plugins.image_viewer.image_viewer_plugin import ImageViewerPlugin
-from plugins.image_loading.image_loader_plugin import ImageLoaderPlugin
+from plugins.loaders.manager import ImageLoaderPlugin
 
 
 class ImageViewerDropPlugin(Plugin):

@@ -1,6 +1,6 @@
 from core.plugin import Plugin
 from ..image_viewer_plugin import ImageViewerPlugin
-from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.window.main import MainWindowPlugin
 
 from PyQt5.QtCore import pyqtSignal
 

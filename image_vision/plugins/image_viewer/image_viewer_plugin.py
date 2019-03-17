@@ -1,7 +1,7 @@
 from core.plugin import Plugin
 from plugins.image_viewer.image_viewer import ImageViewer
 from plugins.image_viewer.model_image_viewer import ModelImageViewer
-from plugins.main_window.main_window_plugin import MainWindowPlugin
+from plugins.window.main import MainWindowPlugin
 
 from PyQt5.QtCore import Qt
 

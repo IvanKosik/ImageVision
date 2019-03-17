@@ -91,7 +91,7 @@ class DicomLoader:
                         image_count, plural))
 
                     # Open and read something from each image, for demonstration
-                    # purposes. For simple quick overview of DICOMDIR, leave the
+                    # purposes. For file quick overview of DICOMDIR, leave the
                     # following out
                     print(" " * 12 + "Reading images...")
                     image_records = series.children

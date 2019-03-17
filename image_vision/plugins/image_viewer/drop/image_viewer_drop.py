@@ -1,4 +1,4 @@
-from plugins.image_loading.image_loader import ImageLoader
+from plugins.loaders.image_loader import ImageLoader
 
 from PyQt5.QtCore import QObject, QEvent
 
