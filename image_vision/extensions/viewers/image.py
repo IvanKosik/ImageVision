@@ -3,7 +3,7 @@ from core.colormap import Colormap
 from core import image_utils
 from core import settings
 
-from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsEllipseItem, \
+from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsEllipseItem, \
     QStyleOptionGraphicsItem, QWidget
 from PyQt5.QtGui import QPixmap, QPainter, QMouseEvent, QBrush, QShowEvent, QPaintEvent
 from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QTimeLine, QPointF, QRectF, QObject, QEvent, QSizeF, QRect
@@ -109,21 +109,23 @@ class _ViewSmoothZoom(QObject):
         self.view.translate(delta.x(), delta.y())
 
 
-class ViewerImageItem(QGraphicsPixmapItem):
+class ViewerImageItem(QGraphicsItem):
     def __init__(self):
         super().__init__()
 
         self.layers = []
 
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget):
-        device_rect = QRect(0, 0, painter.device().width(), painter.device().height())
+    def boundingRect(self):
+        if self.layers:
+            image = self.layers[0].displayed_image
+            return QRectF(image.rect())
+        else:
+            return QRectF()
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget = None):
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
         image = self.layers[0].displayed_image
-        # image_rect = image.rect()
-        # image_rect.moveCenter(device_rect.center())
-        # print('top:', image_rect.topLeft())
-        # painter.drawImage(image_rect.topLeft(), image)
-        print('dev:', device_rect.topLeft().x())
-        painter.drawImage(self.mapToScene(QPointF(0, 0)), image)
+        painter.drawImage(0, 0, image)
 
 
 class GraphicsView(QGraphicsView):
@@ -141,7 +143,7 @@ class GraphicsView(QGraphicsView):
         # scene.setSceneRect(-300, -300, 600, 600)
 
         self.pixmap_item = ViewerImageItem()
-        self.pixmap_item.setTransformationMode(Qt.SmoothTransformation)
+        #%self.pixmap_item.setTransformationMode(Qt.SmoothTransformation)
         scene.addItem(self.pixmap_item)
 
         self.setScene(scene)
@@ -169,7 +171,10 @@ class ImageViewer(GraphicsView):
         print('shape:', image.array.shape)
         self.image_layer = ImageViewerLayer('Image', image)
         self.mask_layer = ImageViewerLayer('Mask')
+
         self.pixmap_item.layers = [self.image_layer, self.mask_layer]
+        # self.pixmap_item.update()
+
         # self.layers = {self.image_layer.id: self.image_layer,
         #                self.mask_layer.id: self.mask_layer}
 
@@ -381,8 +386,9 @@ class ImageViewer(GraphicsView):
     def center_image(self):
         pixmap_size = self.pixmap_item.boundingRect().size()
         margins_size = pixmap_size
-        self.setSceneRect(QRectF(self.pixmap_item.pos() - QPointF(margins_size.width(), margins_size.height()),
-                                 2 * margins_size + pixmap_size))
+        top_left_point = QPointF(self.pixmap_item.pos() - QPointF(margins_size.width(), margins_size.height()))
+        size = QSizeF(2 * margins_size + pixmap_size)
+        self.setSceneRect(QRectF(top_left_point, size))
         self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
         # self.centerOn(self.pixmap_item)
 
