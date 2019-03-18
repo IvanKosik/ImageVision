@@ -1,6 +1,6 @@
-from core.plugin import Plugin
+from core import Plugin
 
-from plugins.image_storage.image_storage import ImageStorage
+from extensions.storages import ImageStorage
 
 
 class ImageStoragePlugin(Plugin):

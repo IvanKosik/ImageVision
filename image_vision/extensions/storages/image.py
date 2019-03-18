@@ -1,4 +1,4 @@
-from core.image import Image
+from core import Image
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
