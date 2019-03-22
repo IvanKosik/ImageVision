@@ -34,7 +34,7 @@ class ViewerDirDataWalkerPlugin(Plugin):
     def _on_next_image_triggered(self):
         active_sub_window = self.mdi_area.activeSubWindow()
         if active_sub_window:
-            data_viewer = active_sub_window.widget()
+            data_viewer = active_sub_window.viewer
             viewer_dir_data_walker = self.viewers_dir_data_walkers.get(data_viewer)
             if viewer_dir_data_walker is None:
                 viewer_dir_data_walker = ViewerDirDataWalker(data_viewer, self.loading_manager)

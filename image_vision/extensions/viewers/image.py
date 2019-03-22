@@ -15,12 +15,15 @@ import os
 from functools import partial
 
 
-class ImageViewerLayer:
+class ImageViewerLayer(QObject):  #% rename to ImageItemLayer
     max_id = 0
+
+    updated = pyqtSignal(Image)
 
     def __init__(self, name: str = '', image: Image = None, colormap: Colormap = None,
                  visible: bool = True, opacity: float = 1):
         """Colormap only for indexed images"""
+        super().__init__()
         self.id = ImageViewerLayer.max_id
         ImageViewerLayer.max_id += 1
 
@@ -45,8 +48,9 @@ class ImageViewerLayer:
     def image(self, value):
         if self._image != value:
             self._image = value
-            self._displayed_image_cache = None
-            self._image.updated.connect(self.on_image_updated)
+            # self._displayed_image_cache = None
+            self._on_image_updated()
+            self._image.updated.connect(self._on_image_updated)
 
     @property
     def displayed_image(self):
@@ -59,8 +63,10 @@ class ImageViewerLayer:
             self._displayed_image_cache = image_utils.numpy_rgba_image_to_qimage(displayed_rgba_array)
         return self._displayed_image_cache
 
-    def on_image_updated(self):
+    def _on_image_updated(self):
+        print('on_image_updated (image array updated or layer image changed) !!!!!!!!!!!!!')
         self._displayed_image_cache = None
+        self.updated.emit(self.image)
 
 
 class _Zoom:  # TODO: Use Python 3.7 dataclasses
@@ -128,6 +134,12 @@ class ViewerImageItem(QGraphicsItem):
             return QRectF(image.rect())
         else:
             return QRectF()
+
+    def add_layer(self, layer: ImageViewerLayer):
+        self.layers.append(layer)
+        # Calling update() several times normally results in just one paintEvent() call.
+        # See QWidget::update() documentation.
+        layer.updated.connect(self.update)
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget = None):
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
@@ -216,8 +228,9 @@ class ImageViewer(DataViewer):
         self.image_layer = ImageViewerLayer('Image', image)
         #%self.mask_layer = ImageViewerLayer('Mask')
 
-        self.layers = [self.image_layer] #%, self.mask_layer]
-        self.graphics_view.pixmap_item.layers = self.layers
+        #%self.layers = [self.image_layer] #%, self.mask_layer]
+        #%self.graphics_view.pixmap_item.layers = self.layers
+        self.graphics_view.pixmap_item.add_layer(self.image_layer)
         # self.pixmap_item.update()
 
         # self.layers = {self.image_layer.id: self.image_layer,
@@ -257,10 +270,12 @@ class ImageViewer(DataViewer):
 
         # self.setFocusPolicy(Qt.StrongFocus)  # for key events
 
+    @property
+    def layers(self):
+        return self.graphics_view.pixmap_item.layers
+
     def add_layer(self, name, image: Image = None, colormap: Colormap = None):
-        layer = ImageViewerLayer(name, image, colormap)
-        self.layers.append(layer)
-        return layer
+        self.graphics_view.pixmap_item.add_layer(ImageViewerLayer(name, image, colormap))
 
     def remove_layer(self, layer):
         self.layers.remove(layer)
