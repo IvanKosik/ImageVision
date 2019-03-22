@@ -21,7 +21,6 @@ class DataVisualizerRegistry:
             del self._registry[data_type]
 
     def visualizer_cls(self, data_type: Type[Data]) -> Type[DataVisualizer]:
-        print('ccccc:', self._registry)
         return self._registry[data_type]
 
     def contains(self, data_type: Type[Data]) -> bool:

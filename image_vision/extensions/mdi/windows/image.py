@@ -1,6 +1,7 @@
-from .base import SubWindow
+from .base import DataViewerSubWindow
+from extensions.viewers import ImageViewer
 
 
-class ImageSubWindow(SubWindow):
-    def __init__(self):
-        super().__init__()
+class ImageViewerSubWindow(DataViewerSubWindow):
+    def __init__(self, viewer: ImageViewer):
+        super().__init__(viewer)

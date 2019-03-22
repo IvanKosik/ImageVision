@@ -1,12 +1,13 @@
 from core import Data
 from .registry import DataVisualizerRegistry
 from extensions.mdi import MdiArea
+from extensions.mdi.windows import DataViewerSubWindow
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
 
 class DataVisualizationManager(QObject):
-    data_visualized = pyqtSignal()
+    data_visualized = pyqtSignal(DataViewerSubWindow)
 
     def __init__(self, visualizers_registry: DataVisualizerRegistry, mdi_area: MdiArea):
         super().__init__()
@@ -21,5 +22,5 @@ class DataVisualizationManager(QObject):
         print('Visualize data:', type(data))
         visualizer_cls = self.visualizers_registry.visualizer_cls(type(data))
         visualizer = visualizer_cls(self.mdi_area)
-        visualizer.visualize_data(data)
-        self.data_visualized.emit()
+        data_viewer_sub_window = visualizer.visualize_data(data)
+        self.data_visualized.emit(data_viewer_sub_window)

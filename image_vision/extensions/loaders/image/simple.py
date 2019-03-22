@@ -11,4 +11,4 @@ class SimpleImageFileLoader(ImageFileLoader):
 
     def _load_file(self, path: Path):
         print('Load Simple Image')
-        return Image(imread(str(path)))
+        return Image(imread(str(path)), path)

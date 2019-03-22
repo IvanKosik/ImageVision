@@ -1,10 +1,11 @@
-from core.image import Image
+from .base import DataViewer
+from core import Image
 from core.colormap import Colormap
 from core import image_utils
 from core import settings
 
 from PyQt5.QtWidgets import QLabel, QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsEllipseItem, \
-    QStyleOptionGraphicsItem, QWidget
+    QStyleOptionGraphicsItem, QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QPainter, QMouseEvent, QBrush, QShowEvent, QPaintEvent
 from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QTimeLine, QPointF, QRectF, QObject, QEvent, QSizeF, QRect
 from skimage.io import imread, imsave
@@ -32,6 +33,10 @@ class ImageViewerLayer:
 
         self._displayed_image_cache = None
 
+    @property
+    def image_path(self):
+        return self.image.path
+
     @property  # TODO: this is slow. If we need only setter, there are alternatives without getter
     def image(self):
         return self._image
@@ -45,11 +50,13 @@ class ImageViewerLayer:
 
     @property
     def displayed_image(self):
-        if not self._displayed_image_cache:
-            displayed_array = image_utils.converted_to_normalized_uint8(self.image.array)
-            displayed_array = image_utils.converted_to_rgba(displayed_array)
-            self._displayed_image_cache = image_utils.numpy_rgba_image_to_qimage(displayed_array)
-#%            self._displayed_image_cache = Image(displayed_array)
+        if self._displayed_image_cache is None:
+            if self.colormap is None:
+                displayed_rgba_array = image_utils.converted_to_normalized_uint8(self.image.array)
+                displayed_rgba_array = image_utils.converted_to_rgba(displayed_rgba_array)
+            else:
+                displayed_rgba_array = self.colormap.colored_premultiplied_image(self.image.array)
+            self._displayed_image_cache = image_utils.numpy_rgba_image_to_qimage(displayed_rgba_array)
         return self._displayed_image_cache
 
     def on_image_updated(self):
@@ -124,13 +131,15 @@ class ViewerImageItem(QGraphicsItem):
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget = None):
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
-        image = self.layers[0].displayed_image
-        painter.drawImage(0, 0, image)
+        for layer in self.layers:
+            if layer.image is not None and layer.visible:
+                painter.setOpacity(layer.opacity)
+                painter.drawImage(0, 0, layer.displayed_image)
 
 
 class GraphicsView(QGraphicsView):
-    def __init__(self, scene):
-        super().__init__(scene)
+    def __init__(self):
+        super().__init__()
 
         self.setTransformationAnchor(QGraphicsView.NoAnchor)
         self.setResizeAnchor(QGraphicsView.NoAnchor)
@@ -158,21 +167,57 @@ class GraphicsView(QGraphicsView):
         item = QGraphicsEllipseItem(pos.x() - 5, pos.y() - 5, 10, 10, self.pixmap_item)
         # self.scene().addItem(QGraphicsEllipseItem(pos.x() - 5, pos.y() - 5, 10, 10, self.pixmap_item))
 
+    def on_zoom_finished(self):
+        self.scene_center = self.mapToScene(self.viewport().rect().center())
 
-class ImageViewer(GraphicsView):
+    def center_image(self):
+        pixmap_size = self.pixmap_item.boundingRect().size()
+        margins_size = pixmap_size
+        top_left_point = QPointF(self.pixmap_item.pos() - QPointF(margins_size.width(), margins_size.height()))
+        size = QSizeF(2 * margins_size + pixmap_size)
+        self.setSceneRect(QRectF(top_left_point, size))
+        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+        # self.centerOn(self.pixmap_item)
+
+    def showEvent(self, event: QShowEvent):
+        self.center_image()
+
+    def resizeEvent(self, e):
+        '''
+        if not self.scene_center:
+            self.on_zoom_finished()
+
+        print('RESIZE', self.scene_center)
+
+        self.centerOn(self.scene_center)
+        '''
+        self.center_image()
+
+        super().resizeEvent(e)
+
+
+class ImageViewer(DataViewer):
     before_image_changed = pyqtSignal()
     image_changed = pyqtSignal()
     colormap_active_class_changed = pyqtSignal(int)
 
-    def __init__(self, image: Image = None, parent=None):
-        super().__init__(parent)
+    def __init__(self, image: Image = None):
+        super().__init__(image)
+
+        self.graphics_view = GraphicsView()
+        grid_layout = QGridLayout()
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+
+        grid_layout.addWidget(self.graphics_view)
+        self.setLayout(grid_layout)
 
 #%        self.main_window = main_window  #%! Temp
         print('shape:', image.array.shape)
         self.image_layer = ImageViewerLayer('Image', image)
-        self.mask_layer = ImageViewerLayer('Mask')
+        #%self.mask_layer = ImageViewerLayer('Mask')
 
-        self.pixmap_item.layers = [self.image_layer, self.mask_layer]
+        self.layers = [self.image_layer] #%, self.mask_layer]
+        self.graphics_view.pixmap_item.layers = self.layers
         # self.pixmap_item.update()
 
         # self.layers = {self.image_layer.id: self.image_layer,
@@ -212,8 +257,8 @@ class ImageViewer(GraphicsView):
 
         # self.setFocusPolicy(Qt.StrongFocus)  # for key events
 
-    def add_layer(self, name, image: Image = None):
-        layer = ImageViewerLayer(name, image)
+    def add_layer(self, name, image: Image = None, colormap: Colormap = None):
+        layer = ImageViewerLayer(name, image, colormap)
         self.layers.append(layer)
         return layer
 
@@ -228,9 +273,19 @@ class ImageViewer(GraphicsView):
         self.image_view = not self.image_view
         self.update_scaled_combined_image()
 
+    '''
     def image(self):
         return self.image_layer.image
 
+    def mask(self):
+        return self.mask_layer.image
+    '''
+
+    @property
+    def image(self):
+        return self.image_layer.image
+
+    @property
     def mask(self):
         return self.mask_layer.image
 
@@ -383,18 +438,6 @@ class ImageViewer(GraphicsView):
         self.center_image()
         self.image_changed.emit()
 
-    def center_image(self):
-        pixmap_size = self.pixmap_item.boundingRect().size()
-        margins_size = pixmap_size
-        top_left_point = QPointF(self.pixmap_item.pos() - QPointF(margins_size.width(), margins_size.height()))
-        size = QSizeF(2 * margins_size + pixmap_size)
-        self.setSceneRect(QRectF(top_left_point, size))
-        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
-        # self.centerOn(self.pixmap_item)
-
-    def showEvent(self, event: QShowEvent):
-        self.center_image()
-
     '''
     def update_scaled_combined_image(self):
         if not self.has_image():
@@ -420,19 +463,3 @@ class ImageViewer(GraphicsView):
         # self.pixmap_item.setPixmap(QPixmap(self.scaled_combined_qimage))
         self.pixmap_item.setPixmap(QPixmap(self.combined_qimage))
     '''
-
-    def on_zoom_finished(self):
-        self.scene_center = self.mapToScene(self.viewport().rect().center())
-
-    def resizeEvent(self, e):
-        '''
-        if not self.scene_center:
-            self.on_zoom_finished()
-
-        print('RESIZE', self.scene_center)
-
-        self.centerOn(self.scene_center)
-        '''
-        self.center_image()
-
-        super().resizeEvent(e)

@@ -1,1 +1,2 @@
-from .image import ImageSubWindow
+from .base import DataViewerSubWindow
+from .image import ImageViewerSubWindow
