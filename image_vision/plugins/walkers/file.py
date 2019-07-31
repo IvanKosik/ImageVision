@@ -1,5 +1,5 @@
 from core import Plugin
-from extensions.viewers import ImageViewer
+from extensions.viewers import FlatImageViewer
 from extensions.mdi import MdiArea
 from extensions.mdi.windows import ImageViewerSubWindow
 from extensions.loaders import FileLoadingManager
@@ -14,7 +14,7 @@ import os
 
 
 class ImageLayerFileWalker(QObject):
-    def __init__(self, image_viewer: ImageViewer, loading_manager: FileLoadingManager):
+    def __init__(self, image_viewer: FlatImageViewer, loading_manager: FileLoadingManager):
         super().__init__()
 
         self.image_viewer = image_viewer

@@ -1,11 +1,11 @@
-from extensions.viewers import ImageViewer
+from extensions.viewers import FlatImageViewer
 from extensions.loaders import FileLoadingManager
 
 from PyQt5.QtCore import QObject
 
 
 class ViewerDirDataWalker(QObject):
-    def __init__(self, image_viewer: ImageViewer, loading_manager: FileLoadingManager):
+    def __init__(self, image_viewer: FlatImageViewer, loading_manager: FileLoadingManager):
         super().__init__()
 
         self.image_viewer = image_viewer

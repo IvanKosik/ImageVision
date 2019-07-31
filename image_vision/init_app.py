@@ -1,7 +1,7 @@
 from gui_application import GuiApplication
 from plugins.mdi import MdiAreaFileDropperPlugin
-from plugins.loaders.image import SimpleImageFileLoaderPlugin
-from plugins.visualizers.image import ImageDataVisualizerPlugin
+from plugins.loaders.image import SimpleImageFileLoaderPlugin, NiftiImageFileLoaderPlugin
+from plugins.visualizers.image import FlatImageVisualizerPlugin
 from plugins.overlayers.path import ImageViewerPathOverlayerPlugin
 from plugins.walkers.file import ImageLayerFileWalkerPlugin
 
@@ -13,7 +13,8 @@ print('init_app')
 
 #plugins = [ImageViewerPlugin, DicomLoaderPlugin, InteractiveConsolePlugin, SmartBrushSegmentationToolPlugin]
 #plugins = [SmartBrushSegmentationToolPlugin, ImageLoaderPlugin, SimpleImageFormatLoaderPlugin, NiftiImageFormatLoaderPlugin, ImageViewerDropPlugin]
-plugins = [MdiAreaFileDropperPlugin, SimpleImageFileLoaderPlugin, ImageDataVisualizerPlugin, ImageViewerPathOverlayerPlugin, ImageLayerFileWalkerPlugin]
+plugins = [MdiAreaFileDropperPlugin, SimpleImageFileLoaderPlugin, NiftiImageFileLoaderPlugin, FlatImageVisualizerPlugin,
+           ImageViewerPathOverlayerPlugin, ImageLayerFileWalkerPlugin]
 app = GuiApplication(sys.argv)
 # InteractiveConsolePlugin.locals = {'app': app}
 app.install_plugins(plugins)

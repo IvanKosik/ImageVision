@@ -1,6 +1,6 @@
 from core import settings
 
-from core.image import Image
+from core.image import FlatImage
 from PyQt5.QtCore import QObject, pyqtSignal
 import numpy as np
 
@@ -80,7 +80,7 @@ class ImageViewerTool(QObject):
         tool_mask_data = np.full((self.viewer.image().data.shape[0], self.viewer.image().data.shape[1]),
                                  settings.TOOL_NO_COLOR_CLASS, np.uint8)
         if self.tool_mask is None:
-            self.tool_mask = Image(tool_mask_data)
+            self.tool_mask = FlatImage(tool_mask_data)
             self.tool_mask_layer.image = self.tool_mask
         else:
             self.tool_mask.data = tool_mask_data

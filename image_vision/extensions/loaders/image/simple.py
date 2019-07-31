@@ -1,4 +1,4 @@
-from core import Image
+from core import FlatImage
 from .base import ImageFileLoader
 
 from pathlib import Path
@@ -11,4 +11,4 @@ class SimpleImageFileLoader(ImageFileLoader):
 
     def _load_file(self, path: Path):
         print('Load Simple Image')
-        return Image(imread(str(path)), path)
+        return FlatImage(imread(str(path)), path)

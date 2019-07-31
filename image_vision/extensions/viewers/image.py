@@ -1,5 +1,5 @@
 from .base import DataViewer
-from core import Image
+from core import FlatImage
 from core.colormap import Colormap
 from core import image_utils
 from core import settings
@@ -18,9 +18,9 @@ from functools import partial
 class ImageViewerLayer(QObject):  #% rename to ImageItemLayer
     max_id = 0
 
-    updated = pyqtSignal(Image)
+    updated = pyqtSignal(FlatImage)
 
-    def __init__(self, name: str = '', image: Image = None, colormap: Colormap = None,
+    def __init__(self, name: str = '', image: FlatImage = None, colormap: Colormap = None,
                  visible: bool = True, opacity: float = 1):
         """Colormap only for indexed images"""
         super().__init__()
@@ -208,12 +208,12 @@ class GraphicsView(QGraphicsView):
         super().resizeEvent(e)
 
 
-class ImageViewer(DataViewer):
+class FlatImageViewer(DataViewer):
     before_image_changed = pyqtSignal()
     image_changed = pyqtSignal()
     colormap_active_class_changed = pyqtSignal(int)
 
-    def __init__(self, image: Image = None):
+    def __init__(self, image: FlatImage = None):
         super().__init__(image)
 
         self.graphics_view = GraphicsView()
@@ -274,7 +274,7 @@ class ImageViewer(DataViewer):
     def layers(self):
         return self.graphics_view.pixmap_item.layers
 
-    def add_layer(self, name, image: Image = None, colormap: Colormap = None):
+    def add_layer(self, name, image: FlatImage = None, colormap: Colormap = None):
         self.graphics_view.pixmap_item.add_layer(ImageViewerLayer(name, image, colormap))
 
     def remove_layer(self, layer):
@@ -422,7 +422,7 @@ class ImageViewer(DataViewer):
 #%        self.main_window.setWindowTitle(os.path.basename(self.image_path))
         self.mask_path = mask_path
 
-        self.image_layer.image = Image(imread(self.image_path))
+        self.image_layer.image = FlatImage(imread(self.image_path))
         # self.image_layer.image.data = resize(self.image_layer.image.data, (512, 512), anti_aliasing=True)
         # print('s', self.image().data.shape)
         image_utils.print_image_info(self.image().data, 'original')
@@ -446,8 +446,8 @@ class ImageViewer(DataViewer):
         else:
 #            mask = np.zeros(self.image().data.shape, np.uint8)
             mask = np.full((self.image().data.shape[0], self.image().data.shape[1]), settings.NO_MASK_CLASS, np.uint8)
-        self.mask_layer.image = Image(mask)
-        self.initial_mask = Image(np.copy(mask))
+        self.mask_layer.image = FlatImage(mask)
+        self.initial_mask = FlatImage(np.copy(mask))
 
         self.update_scaled_combined_image()
         self.center_image()

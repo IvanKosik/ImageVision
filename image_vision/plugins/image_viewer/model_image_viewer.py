@@ -1,6 +1,6 @@
 from plugins.image_viewer.image_viewer import ImageViewer
 from plugins.image_viewer.image_layer import ImageLayer
-from core.image import Image
+from core.image import FlatImage
 from core import image_utils
 from core import settings
 
@@ -74,7 +74,7 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         self.slice_number = number % self.model.shape[2]
 
         print('--- Show slice:', self.slice_number, '---')
-        self.image_layer.image = Image(np.ascontiguousarray(self.model[:, :, self.slice_number]))
+        self.image_layer.image = FlatImage(np.ascontiguousarray(self.model[:, :, self.slice_number]))
 
         image_utils.print_image_info(self.image().data, 'original')
         self.image().data = image_utils.converted_to_normalized_uint8(self.image().data)
@@ -96,9 +96,9 @@ class ModelImageViewer(ImageViewer):  #% or rename to ModelSliceViewer
         m = m.astype(np.uint8)
 #        m = image_utils.converted_to_rgba_mask(m)
 #        m[m != settings.NO_MASK_CLASS] = settings.MASK_CLASS
-        self.mask_layer.image = Image(np.ascontiguousarray(m))
+        self.mask_layer.image = FlatImage(np.ascontiguousarray(m))
 
-        self.initial_mask = Image(np.copy(m))
+        self.initial_mask = FlatImage(np.copy(m))
 
         self.image_changed.emit()
 
